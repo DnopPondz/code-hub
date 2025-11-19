@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Boba Pop!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'], fun: ['Fredoka', 'cursive'] },
+                    colors: { brand: { red: '#ff4757', dark: '#2f3542' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid white; }
+        .bg-boba { background-color: #f8f9fa; background-image: radial-gradient(#ffe2e5 2px, transparent 2px); background-size: 30px 30px; }
+    </style>
+</head>
+<body class="bg-boba text-brand-dark font-sans antialiased">
+
+    <div class="max-w-6xl mx-auto px-4 py-10">
+        <div class="flex items-center gap-3 mb-8">
+            <a href="index.html" class="w-10 h-10 bg-brand-red rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform"><i class="fa-solid fa-arrow-left"></i></a>
+            <h1 class="font-fun text-3xl font-bold">Checkout</h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="glass p-8 rounded-3xl shadow-sm">
+                    <h2 class="font-fun text-xl font-bold mb-4 flex items-center gap-2"><span class="bg-brand-red text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span> Delivery Address</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="Full Name" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-all">
+                        <input type="tel" placeholder="Phone Number" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-red">
+                        <textarea class="w-full md:col-span-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-red" rows="3" placeholder="Full Address (Street, Apt, City)"></textarea>
+                    </div>
+                </div>
+
+                <div class="glass p-8 rounded-3xl shadow-sm">
+                    <h2 class="font-fun text-xl font-bold mb-4 flex items-center gap-2"><span class="bg-brand-red text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span> Payment Method</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="payment" class="peer sr-only" checked>
+                            <div class="p-4 rounded-xl border-2 border-gray-100 peer-checked:border-brand-red peer-checked:bg-red-50 hover:bg-gray-50 transition-all text-center">
+                                <i class="fa-regular fa-credit-card text-2xl mb-2 text-gray-600 peer-checked:text-brand-red"></i>
+                                <p class="font-bold text-sm">Credit Card</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="payment" class="peer sr-only">
+                            <div class="p-4 rounded-xl border-2 border-gray-100 peer-checked:border-brand-red peer-checked:bg-red-50 hover:bg-gray-50 transition-all text-center">
+                                <i class="fa-solid fa-qrcode text-2xl mb-2 text-gray-600 peer-checked:text-brand-red"></i>
+                                <p class="font-bold text-sm">Scan QR</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="payment" class="peer sr-only">
+                            <div class="p-4 rounded-xl border-2 border-gray-100 peer-checked:border-brand-red peer-checked:bg-red-50 hover:bg-gray-50 transition-all text-center">
+                                <i class="fa-solid fa-money-bill-wave text-2xl mb-2 text-gray-600 peer-checked:text-brand-red"></i>
+                                <p class="font-bold text-sm">Cash</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="glass p-6 rounded-3xl shadow-lg sticky top-6">
+                    <h3 class="font-fun text-xl font-bold mb-6">Order Summary</h3>
+                    
+                    <div id="cart-items" class="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
+                        </div>
+
+                    <div class="border-t border-dashed border-gray-300 my-4"></div>
+
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex justify-between"><span>Subtotal</span> <span id="subtotal">$0.00</span></div>
+                        <div class="flex justify-between"><span>Tax (7%)</span> <span id="tax">$0.00</span></div>
+                        <div class="flex justify-between text-brand-dark font-bold text-xl mt-2 pt-2 border-t">
+                            <span>Total</span> <span id="total" class="text-brand-red">$0.00</span>
+                        </div>
+                    </div>
+
+                    <button onclick="processOrder()" class="w-full mt-6 bg-brand-red text-white py-4 rounded-xl font-bold shadow-lg shadow-red-500/30 hover:bg-red-600 hover:scale-[1.02] transition-all">
+                        Place Order 🧋
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl text-center max-w-sm mx-4 shadow-2xl transform scale-0 transition-transform duration-300" id="modal-content">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl animate-bounce">🎉</div>
+            <h2 class="font-fun text-2xl font-bold mb-2">Order Received!</h2>
+            <p class="text-gray-500 mb-6">Thank you! Your bubble tea is being prepared.</p>
+            <button onclick="window.location.href='index.html'" class="bg-brand-dark text-white px-6 py-2 rounded-full font-bold hover:bg-brand-red">Back to Home</button>
+        </div>
+    </div>
+
+    <script>
+        // Mock Cart Data
+        const cart = [
+            { id: 1, name: "Strawberry Cloud", price: 5.50, qty: 2, img: "https://cdn-icons-png.flaticon.com/512/2405/2405479.png" },
+            { id: 2, name: "Brown Sugar Lava", price: 4.90, qty: 1, img: "https://cdn-icons-png.flaticon.com/512/2447/2447137.png" }
+        ];
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            let subtotal = 0;
+            container.innerHTML = '';
+
+            cart.forEach(item => {
+                subtotal += item.price * item.qty;
+                container.innerHTML += `
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 bg-red-50 rounded-lg flex items-center justify-center p-1 shrink-0">
+                            <img src="${item.img}" class="h-full object-contain">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm leading-tight">${item.name}</h4>
+                            <p class="text-xs text-gray-500">$${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="font-bold text-sm">x${item.qty}</div>
+                    </div>
+                `;
+            });
+
+            const tax = subtotal * 0.07;
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').innerText = '$' + subtotal.toFixed(2);
+            document.getElementById('tax').innerText = '$' + tax.toFixed(2);
+            document.getElementById('total').innerText = '$' + total.toFixed(2);
+        }
+
+        function processOrder() {
+            // Show Modal Animation
+            const modal = document.getElementById('success-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-0');
+                content.classList.add('scale-100');
+            }, 50);
+        }
+
+        renderCart();
+    </script>
+</body>
+</html>

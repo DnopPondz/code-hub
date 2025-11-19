@@ -1,0 +1,93 @@
+/* ล้างค่าระยะห่างเริ่มต้น เพื่อให้เราจัดหน้าได้ง่ายขึ้น */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* การตั้งค่าพื้นฐานของหน้าเว็บ */
+body {
+    /* ใช้ฟอนต์ Kanit ถ้าโหลดไม่ได้ให้ใช้ sans-serif ทั่วไป */
+    font-family: 'Kanit', sans-serif; 
+    line-height: 1.6;
+    color: #333;
+}
+
+/* ส่วนเมนูบาร์ */
+.navbar {
+    background-color: #333; /* สีพื้นหลังเทาเข้ม */
+    color: white;
+    display: flex; /* จัดให้โลโก้กับเมนูอยู่บรรทัดเดียวกัน */
+    justify-content: space-between; /* ดันให้โลโก้ชิดซ้าย เมนูชิดขวา */
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.nav-links {
+    list-style: none; /* ลบจุดหน้าข้อความ list */
+    display: flex;
+    gap: 20px; /* ระยะห่างระหว่างเมนู */
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none; /* ลบขีดเส้นใต้ลิงก์ */
+}
+
+/* ส่วนหัวข้อหลัก (Hero) */
+.hero {
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.hero button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer; /* เปลี่ยนเมาส์เป็นรูปมือกด */
+    font-family: 'Kanit', sans-serif;
+}
+
+/* กล่องเนื้อหา (Container) */
+.container {
+    max-width: 1100px;
+    margin: 0 auto; /* จัดกึ่งกลางหน้าจอ */
+    padding: 2rem;
+    display: flex; /* สั่งให้กล่องลูกเรียงเป็นแนวนอน */
+    gap: 20px;
+}
+
+.card {
+    background: #fff;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 10px; /* ทำมุมโค้ง */
+    flex: 1; /* แบ่งพื้นที่เท่าๆ กัน */
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* เพิ่มเงาจางๆ */
+}
+
+/* ส่วนท้าย (Footer) */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 20px;
+}
+
+/* --- ส่วนสำคัญ: ทำให้รองรับมือถือ (Responsive) --- */
+/* เมื่อหน้าจอเล็กกว่า 768px (เช่น มือถือ หรือ แท็บเล็ตแนวตั้ง) */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* เปลี่ยนจากแนวนอน เป็นแนวตั้ง */
+    }
+    
+    .navbar {
+        flex-direction: column; /* จัดเมนูให้ลงมาอยู่ใต้โลโก้ */
+        gap: 10px;
+    }
+}

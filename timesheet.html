@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Time Sheet Pro</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; /* Light gray background */
+        }
+
+        /* "Excel-like" Table Styles */
+        .excel-sheet {
+            background: white;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .excel-header {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.75rem; /* Small, precise text like Excel */
+            text-transform: uppercase;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        .excel-row {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .excel-row:hover {
+            background-color: #f8fafc;
+        }
+        .excel-cell {
+            padding: 12px 16px;
+            border-right: 1px solid #f1f5f9; /* Vertical grid lines */
+        }
+
+        /* Navigation Active State */
+        .nav-item.active {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-right: 3px solid #2563eb;
+            font-weight: 600;
+        }
+
+        /* Scrollbar styling for a cleaner app feel */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col z-20 shadow-sm">
+        <div class="h-16 flex items-center px-6 border-b border-gray-200">
+            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white mr-3 shadow-sm">
+                <i class="fas fa-check"></i>
+            </div>
+            <h1 class="font-bold text-lg tracking-tight text-slate-700">ClassKeep</h1>
+        </div>
+
+        <nav class="flex-1 py-6 space-y-1">
+            <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active w-full text-left px-6 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-chart-pie w-6 text-center"></i> Dashboard
+            </button>
+            <button onclick="switchView('entry')" id="nav-entry" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-list-check w-6 text-center"></i> Daily Check List
+            </button>
+            <button onclick="switchView('analysis')" id="nav-analysis" class="nav-item w-full text-left px-6 py-3 text-sm text-gray-500 hover:bg-gray-50 transition-colors">
+                <i class="fas fa-table w-6 text-center"></i> Analysis Sheet
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-gray-200">
+            <div class="text-xs text-gray-400 text-center">
+                Time Sheet System v2.0<br>
+                Local Storage Mode
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-10">
+            <h2 id="page-title" class="text-xl font-bold text-slate-800">Dashboard</h2>
+            <div class="text-sm font-medium text-slate-500 flex items-center bg-gray-100 px-3 py-1 rounded-full">
+                <i class="far fa-calendar-alt mr-2"></i>
+                <span id="current-date-display">Loading...</span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-hidden relative">
+            
+            <div id="view-dashboard" class="absolute inset-0 overflow-auto p-8 space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-5 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Today</div>
+                                <div class="text-2xl font-bold text-slate-800 mt-1" id="dash-today">--</div>
+                            </div>
+                            <div class="p-2 bg-blue-50 text-blue-600 rounded"><i class="fas fa-clock"></i></div>
+                        </div>
+                        <div class="text-xs text-gray-500">Daily attendance rate</div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">7 Days</div>
+                                <div class="text-2xl font-bold text-slate-800 mt-1" id="dash-7day">--</div>
+                            </div>
+                            <div class="p-2 bg-green-50 text-green-600 rounded"><i class="fas fa-calendar-week"></i></div>
+                        </div>
+                        <div class="text-xs text-gray-500">Weekly Average</div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Month</div>
+                                <div class="text-2xl font-bold text-slate-800 mt-1" id="dash-month">--</div>
+                            </div>
+                            <div class="p-2 bg-purple-50 text-purple-600 rounded"><i class="fas fa-calendar-alt"></i></div>
+                        </div>
+                        <div class="text-xs text-gray-500">Monthly Average</div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Year (Total)</div>
+                                <div class="text-2xl font-bold text-slate-800 mt-1" id="dash-year">--</div>
+                            </div>
+                            <div class="p-2 bg-orange-50 text-orange-600 rounded"><i class="fas fa-graduation-cap"></i></div>
+                        </div>
+                        <div class="text-xs text-gray-500">Cumulative Academic Year</div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded shadow-sm p-6">
+                    <h3 class="text-sm font-bold text-gray-600 uppercase mb-6 border-b border-gray-100 pb-2">5 Day Trend Analysis</h3>
+                    <div class="h-48 flex items-end space-x-6 px-4" id="chart-container">
+                        </div>
+                </div>
+            </div>
+
+            <div id="view-entry" class="hidden absolute inset-0 flex flex-col bg-gray-50">
+                
+                <div class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm z-10">
+                    <div class="flex items-center space-x-6">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-calendar text-gray-400"></i>
+                            </div>
+                            <input type="date" id="entry-date" class="pl-10 pr-4 py-2 border border-gray-300 rounded text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm outline-none">
+                        </div>
+                        
+                        <div class="h-8 w-px bg-gray-300"></div>
+                        
+                        <div class="flex space-x-6 text-sm">
+                            <span class="flex items-center text-gray-500 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-gray-400 mr-2"></span> 
+                                Total: <b class="ml-1 text-slate-800" id="live-total">0</b>
+                            </span>
+                            <span class="flex items-center text-green-600 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span> 
+                                Present: <b class="ml-1 text-slate-800" id="live-present">0</b>
+                            </span>
+                            <span class="flex items-center text-red-600 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span> 
+                                Absent: <b class="ml-1 text-slate-800" id="live-absent">0</b>
+                            </span>
+                        </div>
+                    </div>
+            
+                    <button onclick="saveAttendance()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow-sm text-sm font-bold transition-all transform active:scale-95 flex items-center">
+                        <i class="fas fa-save mr-2"></i> Save Sheet
+                    </button>
+                </div>
+            
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div class="max-w-5xl mx-auto excel-sheet rounded-sm">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="excel-header">
+                                <tr>
+                                    <th class="excel-cell w-16 text-center">ID</th>
+                                    <th class="excel-cell">Student Name</th>
+                                    <th class="excel-cell w-2/5 text-center">Attendance Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="entry-table-body" class="text-sm text-gray-700">
+                                </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-6 text-xs text-gray-400">
+                        <i class="fas fa-info-circle mr-1"></i> Auto-saved locally upon clicking 'Save Sheet'.
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-analysis" class="hidden absolute inset-0 flex flex-col overflow-hidden">
+                
+                <div class="px-8 py-4 bg-white border-b border-gray-200 flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <span class="text-sm font-bold text-gray-500 mr-2 self-center">PERIOD:</span>
+                        <button onclick="renderAnalysis('7')" class="analysis-btn px-3 py-1 text-xs font-medium border rounded hover:bg-gray-50 bg-white text-gray-600">7 Days</button>
+                        <button onclick="renderAnalysis('30')" class="analysis-btn px-3 py-1 text-xs font-medium border rounded hover:bg-gray-50 bg-white text-gray-600">Month</button>
+                        <button onclick="renderAnalysis('term')" class="analysis-btn px-3 py-1 text-xs font-medium border rounded hover:bg-gray-50 bg-white text-gray-600">Term</button>
+                        <button onclick="renderAnalysis('year')" class="analysis-btn px-3 py-1 text-xs font-medium border rounded bg-blue-50 text-blue-600 border-blue-200">Year</button>
+                    </div>
+                    <div>
+                        <button class="text-gray-400 text-xs font-medium cursor-not-allowed"><i class="fas fa-file-export mr-1"></i> Export CSV</button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-auto p-8">
+                    <div class="excel-sheet rounded-sm">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="excel-header bg-gray-50">
+                                <tr>
+                                    <th class="excel-cell w-16 text-center">ID</th>
+                                    <th class="excel-cell">Student Name</th>
+                                    <th class="excel-cell text-center w-24">Present</th>
+                                    <th class="excel-cell text-center w-24">Late</th>
+                                    <th class="excel-cell text-center w-24">Absent</th>
+                                    <th class="excel-cell text-center w-32 bg-blue-50">Percentage</th>
+                                    <th class="excel-cell text-center w-32">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysis-table-body" class="text-sm">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- A. CONFIGURATION & DATA ---
+        // EDIT THIS LIST TO ADD STUDENTS
+        const STUDENTS = [
+            { id: 1, name: "James Anderson" },
+            { id: 2, name: "Robert Smith" },
+            { id: 3, name: "Maria Garcia" },
+            { id: 4, name: "David Johnson" },
+            { id: 5, name: "Sarah Wilson" },
+            { id: 6, name: "Michael Brown" },
+            { id: 7, name: "Lisa Taylor" },
+            { id: 8, name: "Jennifer Thomas" },
+            { id: 9, name: "William Roberts" },
+            { id: 10, name: "Elizabeth White" }
+        ];
+
+        // Load data from LocalStorage or start empty
+        // Structure: { "2023-10-27": { "1": "present", "2": "absent" } }
+        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+
+        // Init Date Display
+        const today = new Date();
+        document.getElementById('current-date-display').innerText = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('entry-date').valueAsDate = today;
+
+
+        // --- B. NAVIGATION ---
+        function switchView(viewName) {
+            // 1. Hide all views
+            ['dashboard', 'entry', 'analysis'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                document.getElementById(`nav-${v}`).classList.remove('active');
+            });
+
+            // 2. Show selected view
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            document.getElementById(`nav-${viewName}`).classList.add('active');
+
+            // 3. Update Title
+            const titles = { 'dashboard': 'Dashboard Summary', 'entry': 'Daily Attendance Entry', 'analysis': 'Student Performance Analysis' };
+            document.getElementById('page-title').innerText = titles[viewName];
+
+            // 4. Trigger Data Refresh for that view
+            if (viewName === 'dashboard') updateDashboard();
+            if (viewName === 'entry') renderEntryTable();
+            if (viewName === 'analysis') renderAnalysis('year'); 
+        }
+
+
+        // --- C. ENTRY (CHECKLIST) LOGIC ---
+        function renderEntryTable() {
+            const tbody = document.getElementById('entry-table-body');
+            tbody.innerHTML = '';
+            
+            const dateKey = document.getElementById('entry-date').value;
+            const currentData = attendanceData[dateKey] || {}; // Get existing data for date or empty
+
+            STUDENTS.forEach((student, index) => {
+                const status = currentData[student.id] || 'present'; // Default to Present
+                
+                const tr = document.createElement('tr');
+                tr.className = "excel-row group transition-colors";
+                
+                // Flags for checked state
+                const isP = status === 'present';
+                const isL = status === 'late';
+                const isA = status === 'absent';
+
+                tr.innerHTML = `
+                    <td class="excel-cell text-center text-gray-400 bg-gray-50 font-mono text-xs">${student.id}</td>
+                    <td class="excel-cell font-medium text-slate-700">${student.name}</td>
+                    <td class="excel-cell">
+                        <div class="flex justify-center space-x-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="status-${student.id}" value="present" class="peer sr-only" ${isP ? 'checked' : ''} onchange="updateLiveStats()">
+                                <div class="w-20 py-1.5 text-center rounded border border-gray-200 text-gray-500 text-xs font-semibold hover:bg-green-50 transition-all peer-checked:bg-green-100 peer-checked:text-green-700 peer-checked:border-green-400 peer-checked:shadow-sm">
+                                    Present
+                                </div>
+                            </label>
+                            
+                            <label class="cursor-pointer">
+                                <input type="radio" name="status-${student.id}" value="late" class="peer sr-only" ${isL ? 'checked' : ''} onchange="updateLiveStats()">
+                                <div class="w-20 py-1.5 text-center rounded border border-gray-200 text-gray-500 text-xs font-semibold hover:bg-yellow-50 transition-all peer-checked:bg-yellow-100 peer-checked:text-yellow-700 peer-checked:border-yellow-400 peer-checked:shadow-sm">
+                                    Late
+                                </div>
+                            </label>
+
+                            <label class="cursor-pointer">
+                                <input type="radio" name="status-${student.id}" value="absent" class="peer sr-only" ${isA ? 'checked' : ''} onchange="updateLiveStats()">
+                                <div class="w-20 py-1.5 text-center rounded border border-gray-200 text-gray-500 text-xs font-semibold hover:bg-red-50 transition-all peer-checked:bg-red-100 peer-checked:text-red-700 peer-checked:border-red-400 peer-checked:shadow-sm">
+                                    Absent
+                                </div>
+                            </label>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateLiveStats();
+        }
+
+        function updateLiveStats() {
+            // Count check boxes currently on screen
+            const allRadios = document.querySelectorAll('input[type="radio"]:checked');
+            let p = 0, l = 0, a = 0;
+            
+            allRadios.forEach(r => {
+                if(r.value === 'present') p++;
+                if(r.value === 'late') l++;
+                if(r.value === 'absent') a++;
+            });
+
+            document.getElementById('live-total').innerText = STUDENTS.length;
+            document.getElementById('live-present').innerText = p + l; // Late counts as present physically
+            document.getElementById('live-absent').innerText = a;
+        }
+
+        function saveAttendance() {
+            const dateKey = document.getElementById('entry-date').value;
+            if(!attendanceData[dateKey]) attendanceData[dateKey] = {};
+
+            // Loop through students and find their checked radio status
+            STUDENTS.forEach(student => {
+                const radios = document.getElementsByName(`status-${student.id}`);
+                for(let radio of radios) {
+                    if(radio.checked) {
+                        attendanceData[dateKey][student.id] = radio.value;
+                    }
+                }
+            });
+
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            
+            // Simple Feedback
+            const btn = document.querySelector('button[onclick="saveAttendance()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+            btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            btn.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            }, 1500);
+        }
+
+        // Reload table when date changes
+        document.getElementById('entry-date').addEventListener('change', renderEntryTable);
+
+
+        // --- D. ANALYSIS & STATS UTILITIES ---
+        
+        // Helper: Get array of date strings ["2023-10-27", "2023-10-26"...]
+        function getDatesInRange(rangeStr) {
+            const dates = [];
+            const todayDate = new Date();
+            let daysToSubtract = 0;
+
+            if(rangeStr === '7') daysToSubtract = 7;
+            else if(rangeStr === '30') daysToSubtract = 30;
+            else if(rangeStr === 'term') daysToSubtract = 120; // Approx 4 months
+            else if(rangeStr === 'year') daysToSubtract = 365;
+
+            for (let i = 0; i < daysToSubtract; i++) {
+                const d = new Date();
+                d.setDate(todayDate.getDate() - i);
+                dates.push(d.toISOString().split('T')[0]);
+            }
+            return dates;
+        }
+
+        // Helper: Calculate stats per student for a given date range
+        function calculateStats(dateRange) {
+            let stats = {};
+            // Init stats for all students
+            STUDENTS.forEach(s => stats[s.id] = { present:0, late:0, absent:0, totalDays:0 });
+
+            dateRange.forEach(date => {
+                if (attendanceData[date]) {
+                    // If we have data for this date
+                    for (let [studentId, status] of Object.entries(attendanceData[date])) {
+                        if(stats[studentId]) {
+                            stats[studentId][status]++;
+                            stats[studentId].totalDays++;
+                        }
+                    }
+                }
+            });
+            return stats;
+        }
+
+        // Render Analysis Table
+        function renderAnalysis(range) {
+            // Update active button style
+            document.querySelectorAll('.analysis-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'text-blue-600', 'border-blue-200');
+                btn.classList.add('bg-white', 'text-gray-600');
+            });
+            // Find the button clicked (based on text logic is tricky, so we just rely on the user clicking)
+            event.target.classList.remove('bg-white', 'text-gray-600');
+            event.target.classList.add('bg-blue-50', 'text-blue-600', 'border-blue-200');
+
+            const dates = getDatesInRange(range);
+            const stats = calculateStats(dates);
+            const tbody = document.getElementById('analysis-table-body');
+            tbody.innerHTML = '';
+
+            STUDENTS.forEach(student => {
+                const s = stats[student.id];
+                const total = s.totalDays || 1; // Prevent divide by zero
+                
+                // Calculation: Present=1, Late=0.5, Absent=0
+                const score = (s.present * 1) + (s.late * 0.5);
+                const percentage = Math.round((score / total) * 100);
+
+                // Status Badge Logic
+                let badgeClass = '';
+                let badgeText = '';
+                
+                if(s.totalDays === 0) {
+                    badgeText = 'No Data';
+                    badgeClass = 'text-gray-400 italic';
+                } else if(percentage >= 80) {
+                    badgeText = 'Excellent';
+                    badgeClass = 'text-green-600 font-bold bg-green-50 px-2 py-1 rounded text-xs';
+                } else if(percentage >= 50) {
+                    badgeText = 'Warning';
+                    badgeClass = 'text-yellow-600 font-bold bg-yellow-50 px-2 py-1 rounded text-xs';
+                } else {
+                    badgeText = 'Critical'; // "Ascend" needed
+                    badgeClass = 'text-red-600 font-bold bg-red-50 px-2 py-1 rounded text-xs animate-pulse';
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "excel-row";
+                tr.innerHTML = `
+                    <td class="excel-cell text-center text-gray-400 bg-gray-50 text-xs">${student.id}</td>
+                    <td class="excel-cell font-medium text-slate-700">${student.name}</td>
+                    <td class="excel-cell text-center text-gray-600">${s.present}</td>
+                    <td class="excel-cell text-center text-yellow-600">${s.late}</td>
+                    <td class="excel-cell text-center text-red-600">${s.absent}</td>
+                    <td class="excel-cell text-center font-bold text-blue-700 bg-blue-50">${s.totalDays === 0 ? '-' : percentage + '%'}</td>
+                    <td class="excel-cell text-center"><span class="${badgeClass}">${badgeText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        // --- E. DASHBOARD LOGIC ---
+        function updateDashboard() {
+            // Generic function to get average percentage for the whole class over X days
+            const getClassAvg = (days) => {
+                const dates = getDatesInRange(days);
+                const stats = calculateStats(dates);
+                let totalPerc = 0;
+                let studentCount = 0;
+
+                Object.values(stats).forEach(s => {
+                    if(s.totalDays > 0) {
+                        const p = ((s.present + (s.late * 0.5)) / s.totalDays) * 100;
+                        totalPerc += p;
+                        studentCount++;
+                    }
+                });
+                return studentCount === 0 ? 0 : Math.round(totalPerc / studentCount);
+            };
+
+            document.getElementById('dash-today').innerText = getClassAvg(1) + "%";
+            document.getElementById('dash-7day').innerText = getClassAvg(7) + "%";
+            document.getElementById('dash-month').innerText = getClassAvg(30) + "%";
+            document.getElementById('dash-year').innerText = getClassAvg('year') + "%";
+
+            // Render Trend Chart (Last 5 days)
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            const last5 = getDatesInRange(5).reverse(); // Get dates, flip to show oldest -> newest
+
+            last5.forEach(date => {
+                // Calculate daily class average
+                let dailyScore = 0;
+                let count = 0;
+                
+                if(attendanceData[date]) {
+                    Object.values(attendanceData[date]).forEach(status => {
+                        if(status === 'present') dailyScore += 100;
+                        if(status === 'late') dailyScore += 50;
+                        count++;
+                    });
+                }
+                
+                const avg = count === 0 ? 0 : Math.round(dailyScore / count);
+                const displayDate = date.slice(5).replace('-', '/'); // Convert 2023-10-27 to 10/27
+
+                // Create Bar
+                const barWrapper = document.createElement('div');
+                barWrapper.className = "flex-1 flex flex-col justify-end h-full group relative";
+                
+                // Color logic
+                let color = 'bg-blue-500';
+                if(avg < 50) color = 'bg-red-400';
+                else if(avg < 80) color = 'bg-yellow-400';
+
+                barWrapper.innerHTML = `
+                    <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity mb-1">${avg}%</div>
+                    <div class="w-full ${color} rounded-t transition-all duration-500 hover:brightness-110" style="height: ${avg === 0 ? 2 : avg}%"></div>
+                    <div class="text-xs text-gray-400 text-center mt-2 border-t border-gray-200 pt-1">${displayDate}</div>
+                `;
+                chartContainer.appendChild(barWrapper);
+            });
+        }
+
+        // --- F. INITIALIZE ---
+        switchView('dashboard');
+
+    </script>
+</body>
+</html>

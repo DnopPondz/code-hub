@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Time Sheet Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom styles for "Paper/Excel" feel */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .paper-shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
+        .excel-table th { background-color: #f8fafc; border: 1px solid #d1d5db; font-weight: 600; color: #374151; }
+        .excel-table td { border: 1px solid #d1d5db; color: #111827; }
+        .nav-item.active { background-color: #e5e7eb; border-left: 4px solid #2563eb; font-weight: bold; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden text-sm">
+
+    <aside class="w-64 bg-white border-r border-gray-300 flex flex-col">
+        <div class="h-16 flex items-center justify-center border-b border-gray-300">
+            <h1 class="text-lg font-bold text-gray-800"><i class="fas fa-clipboard-check mr-2"></i>Time Sheet</h1>
+        </div>
+        <nav class="flex-1 py-4 overflow-y-auto">
+            <ul class="space-y-1">
+                <li>
+                    <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active w-full text-left px-6 py-3 text-gray-700 hover:bg-gray-100 focus:outline-none">
+                        <i class="fas fa-chart-pie w-6"></i> Dashboard (Summary)
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchView('entry')" id="nav-entry" class="nav-item w-full text-left px-6 py-3 text-gray-700 hover:bg-gray-100 focus:outline-none">
+                        <i class="fas fa-pen-square w-6"></i> Daily Check List
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchView('analysis')" id="nav-analysis" class="nav-item w-full text-left px-6 py-3 text-gray-700 hover:bg-gray-100 focus:outline-none">
+                        <i class="fas fa-table w-6"></i> Analysis (Excel View)
+                    </button>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-300 text-xs text-gray-500">
+            V1.0 - Local Storage Mode
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white border-b border-gray-300 flex items-center justify-between px-8">
+            <h2 id="page-title" class="text-xl font-semibold text-gray-800">Dashboard</h2>
+            <div class="text-gray-500" id="current-date"></div>
+        </header>
+
+        <div class="flex-1 overflow-auto p-8">
+            
+            <div id="view-dashboard" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 border border-gray-300 paper-shadow rounded-sm">
+                        <div class="text-gray-500 text-xs uppercase font-bold">Today's Attendance</div>
+                        <div class="text-3xl font-bold text-gray-800 mt-2" id="dash-today">0%</div>
+                        <div class="text-xs text-green-600 mt-1">Based on active students</div>
+                    </div>
+                    <div class="bg-white p-4 border border-gray-300 paper-shadow rounded-sm">
+                        <div class="text-gray-500 text-xs uppercase font-bold">Last 7 Days</div>
+                        <div class="text-3xl font-bold text-gray-800 mt-2" id="dash-7day">0%</div>
+                    </div>
+                    <div class="bg-white p-4 border border-gray-300 paper-shadow rounded-sm">
+                        <div class="text-gray-500 text-xs uppercase font-bold">This Month</div>
+                        <div class="text-3xl font-bold text-gray-800 mt-2" id="dash-month">0%</div>
+                    </div>
+                    <div class="bg-white p-4 border border-gray-300 paper-shadow rounded-sm">
+                        <div class="text-gray-500 text-xs uppercase font-bold">Academic Year</div>
+                        <div class="text-3xl font-bold text-gray-800 mt-2" id="dash-year">0%</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 border border-gray-300 paper-shadow rounded-sm">
+                    <h3 class="font-bold text-gray-700 mb-4 border-b pb-2">Attendance Trends (Last 5 Days)</h3>
+                    <div class="h-40 flex items-end space-x-4" id="chart-container">
+                        </div>
+                </div>
+            </div>
+
+            <div id="view-entry" class="hidden max-w-3xl mx-auto">
+                <div class="bg-white border border-gray-300 paper-shadow rounded-sm p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase">Select Date</label>
+                            <input type="date" id="entry-date" class="mt-1 block w-full border-gray-300 border p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <button onclick="saveAttendance()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm shadow text-sm font-medium">
+                            <i class="fas fa-save mr-1"></i> Save Sheet
+                        </button>
+                    </div>
+
+                    <table class="w-full text-left border-collapse excel-table">
+                        <thead>
+                            <tr>
+                                <th class="p-3 w-16 text-center">#</th>
+                                <th class="p-3">Student Name</th>
+                                <th class="p-3 w-24 text-center bg-green-50 text-green-900">Present</th>
+                                <th class="p-3 w-24 text-center bg-yellow-50 text-yellow-900">Late</th>
+                                <th class="p-3 w-24 text-center bg-red-50 text-red-900">Absent</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entry-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="view-analysis" class="hidden">
+                <div class="bg-white border border-gray-300 paper-shadow rounded-sm overflow-hidden">
+                    <div class="p-4 border-b border-gray-300 bg-gray-50 flex justify-between items-center">
+                        <h3 class="font-bold text-gray-700">Student Performance Analysis</h3>
+                        <div class="space-x-2">
+                            <button onclick="renderAnalysis('7')" class="px-3 py-1 text-xs border bg-white hover:bg-gray-100">7 Days</button>
+                            <button onclick="renderAnalysis('30')" class="px-3 py-1 text-xs border bg-white hover:bg-gray-100">1 Month</button>
+                            <button onclick="renderAnalysis('term')" class="px-3 py-1 text-xs border bg-white hover:bg-gray-100">1 Term</button>
+                            <button onclick="renderAnalysis('year')" class="px-3 py-1 text-xs border bg-white hover:bg-gray-100">1 Year</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse excel-table">
+                            <thead>
+                                <tr>
+                                    <th class="p-3 w-16 text-center">ID</th>
+                                    <th class="p-3">Student Name</th>
+                                    <th class="p-3 text-center">Present</th>
+                                    <th class="p-3 text-center">Late</th>
+                                    <th class="p-3 text-center">Absent</th>
+                                    <th class="p-3 text-center font-bold">% Attendance</th>
+                                    <th class="p-3 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysis-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 1. DATA MOCKUP & INITIALIZATION ---
+        // In a real app, this comes from a database.
+        const STUDENTS = [
+            { id: 1, name: "Student One" },
+            { id: 2, name: "Student Two" },
+            { id: 3, name: "Student Three" },
+            { id: 4, name: "Student Four" },
+            { id: 5, name: "Student Five" }
+        ];
+
+        // Data Structure: { "YYYY-MM-DD": { studentId: "present" | "late" | "absent" } }
+        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+
+        // Initialize date on top bar
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('entry-date').valueAsDate = new Date();
+
+        // --- 2. NAVIGATION LOGIC ---
+        function switchView(viewName) {
+            // Hide all views
+            ['dashboard', 'entry', 'analysis'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                document.getElementById(`nav-${v}`).classList.remove('active');
+            });
+            // Show selected
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            document.getElementById(`nav-${viewName}`).classList.add('active');
+            
+            // Update Title
+            const titles = { 'dashboard': 'Dashboard', 'entry': 'Daily Check List', 'analysis': 'Analysis Report' };
+            document.getElementById('page-title').innerText = titles[viewName];
+
+            // Refresh data if needed
+            if(viewName === 'dashboard') updateDashboard();
+            if(viewName === 'entry') renderEntryTable();
+            if(viewName === 'analysis') renderAnalysis('year'); // Default to year view
+        }
+
+        // --- 3. ENTRY (CHECKLIST) LOGIC ---
+        function renderEntryTable() {
+            const tbody = document.getElementById('entry-table-body');
+            tbody.innerHTML = '';
+            
+            const dateKey = document.getElementById('entry-date').value;
+            const currentData = attendanceData[dateKey] || {};
+
+            STUDENTS.forEach(student => {
+                const status = currentData[student.id] || 'present'; // Default to present for ease of use
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-gray-500">${student.id}</td>
+                    <td class="p-3 font-medium">${student.name}</td>
+                    <td class="p-3 text-center bg-green-50">
+                        <input type="radio" name="status-${student.id}" value="present" ${status === 'present' ? 'checked' : ''} class="w-4 h-4 text-green-600">
+                    </td>
+                    <td class="p-3 text-center bg-yellow-50">
+                        <input type="radio" name="status-${student.id}" value="late" ${status === 'late' ? 'checked' : ''} class="w-4 h-4 text-yellow-600">
+                    </td>
+                    <td class="p-3 text-center bg-red-50">
+                        <input type="radio" name="status-${student.id}" value="absent" ${status === 'absent' ? 'checked' : ''} class="w-4 h-4 text-red-600">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveAttendance() {
+            const dateKey = document.getElementById('entry-date').value;
+            if(!attendanceData[dateKey]) attendanceData[dateKey] = {};
+
+            STUDENTS.forEach(student => {
+                const radios = document.getElementsByName(`status-${student.id}`);
+                for(let radio of radios) {
+                    if(radio.checked) {
+                        attendanceData[dateKey][student.id] = radio.value;
+                    }
+                }
+            });
+
+            // Save to local storage
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            alert('Data Saved Successfully!');
+            updateDashboard();
+        }
+
+        document.getElementById('entry-date').addEventListener('change', renderEntryTable);
+
+        // --- 4. ANALYSIS & STATS LOGIC ---
+        
+        function getDatesInRange(days) {
+            const dates = [];
+            const today = new Date();
+            // If days is 'term' (approx 4 months) or 'year' (365), handle logic
+            let count = days === 'term' ? 120 : (days === 'year' ? 365 : parseInt(days));
+            
+            for (let i = 0; i < count; i++) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                dates.push(d.toISOString().split('T')[0]);
+            }
+            return dates;
+        }
+
+        function calculateStats(dateRange) {
+            // Returns object: { studentId: { present: 0, late: 0, absent: 0, total: 0 } }
+            let stats = {};
+            STUDENTS.forEach(s => stats[s.id] = { present:0, late:0, absent:0, total:0 });
+
+            dateRange.forEach(date => {
+                if (attendanceData[date]) {
+                    for (let [studentId, status] of Object.entries(attendanceData[date])) {
+                        if(stats[studentId]) {
+                            stats[studentId][status]++;
+                            stats[studentId].total++;
+                        }
+                    }
+                }
+            });
+            return stats;
+        }
+
+        function renderAnalysis(period) {
+            const dates = getDatesInRange(period);
+            const stats = calculateStats(dates);
+            const tbody = document.getElementById('analysis-table-body');
+            tbody.innerHTML = '';
+
+            STUDENTS.forEach(student => {
+                const s = stats[student.id];
+                const totalDays = s.total || 1; // Avoid divide by zero
+                // Calculation: Present = 100%, Late = 50%, Absent = 0% (Example logic)
+                // Or just pure attendance count
+                const percentage = Math.round(((s.present + (s.late * 0.5)) / totalDays) * 100);
+                
+                // Determine Row Color based on ascending/descending needs
+                let statusBadge = '';
+                if(s.total === 0) statusBadge = '<span class="text-gray-400">No Data</span>';
+                else if(percentage >= 80) statusBadge = '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">Good</span>';
+                else if(percentage >= 50) statusBadge = '<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold">Warning</span>';
+                else statusBadge = '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">Critical</span>';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 text-center">${student.id}</td>
+                    <td class="p-3 font-medium">${student.name}</td>
+                    <td class="p-3 text-center">${s.present}</td>
+                    <td class="p-3 text-center text-yellow-600">${s.late}</td>
+                    <td class="p-3 text-center text-red-600 font-bold">${s.absent}</td>
+                    <td class="p-3 text-center font-bold text-blue-700">${s.total === 0 ? '-' : percentage + '%'}</td>
+                    <td class="p-3 text-center">${statusBadge}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- 5. DASHBOARD LOGIC ---
+        function updateDashboard() {
+            // Helper to calculate average attendance % for all students
+            const getAvg = (days) => {
+                const dates = getDatesInRange(days);
+                const stats = calculateStats(dates);
+                let totalPerc = 0;
+                let count = 0;
+                
+                Object.values(stats).forEach(s => {
+                    if(s.total > 0) {
+                        totalPerc += ((s.present + (s.late * 0.5)) / s.total) * 100;
+                        count++;
+                    }
+                });
+                return count === 0 ? 0 : Math.round(totalPerc / count);
+            };
+
+            document.getElementById('dash-today').innerText = getAvg(1) + "%";
+            document.getElementById('dash-7day').innerText = getAvg(7) + "%";
+            document.getElementById('dash-month').innerText = getAvg(30) + "%";
+            document.getElementById('dash-year').innerText = getAvg('year') + "%";
+
+            // Simple Chart Bar Rendering
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            const last5Days = getDatesInRange(5).reverse();
+            
+            last5Days.forEach(date => {
+                // Calculate daily average
+                let dailyTotal = 0;
+                let dailyCount = 0;
+                if(attendanceData[date]) {
+                    Object.values(attendanceData[date]).forEach(status => {
+                        if(status === 'present') dailyTotal += 100;
+                        if(status === 'late') dailyTotal += 50;
+                        dailyCount++;
+                    });
+                }
+                const val = dailyCount === 0 ? 0 : Math.round(dailyTotal / dailyCount);
+                
+                const bar = document.createElement('div');
+                bar.className = 'flex-1 flex flex-col items-center justify-end h-full group';
+                bar.innerHTML = `
+                    <div class="text-xs text-gray-500 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">${val}%</div>
+                    <div class="w-full bg-blue-500 hover:bg-blue-600 rounded-t-sm transition-all" style="height: ${val}%"></div>
+                    <div class="text-xs text-gray-400 mt-2 transform -rotate-45 origin-left" style="font-size: 10px;">${date.slice(5)}</div>
+                `;
+                chartContainer.appendChild(bar);
+            });
+        }
+
+        // Start Logic
+        switchView('dashboard');
+
+    </script>
+</body>
+</html>

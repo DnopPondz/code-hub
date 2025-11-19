@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberTech IT Solutions</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        cyber: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            dark: '#0f172a', // Slate 900
+                            blue: '#1e3a8a', // Blue 900
+                            neon: '#06b6d4', // Cyan 500
+                            glass: 'rgba(255, 255, 255, 0.05)',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Utilities for Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Background Grid Effect */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Scroll Reveal Class */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-cyber-dark text-white overflow-x-hidden">
+
+    <div class="fixed inset-0 z-[-1] bg-grid pointer-events-none"></div>
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse-slow"></div>
+    <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-cyber-neon rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-pulse-slow"></div>
+
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="#" class="text-2xl font-cyber font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                        <i class="fa-solid fa-microchip mr-2"></i>CYBER<span class="text-white">TECH</span>
+                    </a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="hover:text-cyber-neon transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="#services" class="hover:text-cyber-neon transition-colors px-3 py-2 rounded-md text-sm font-medium">Services</a>
+                        <a href="#about" class="hover:text-cyber-neon transition-colors px-3 py-2 rounded-md text-sm font-medium">About</a>
+                        <a href="#contact" class="bg-cyber-neon text-cyber-dark hover:bg-cyan-400 px-5 py-2 rounded-full font-bold transition-transform hover:scale-105">Get Started</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="toggleMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="md:hidden hidden bg-slate-900/95 backdrop-blur-xl" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 text-center border-t border-gray-700">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium hover:text-cyber-neon">Home</a>
+                <a href="#services" class="block px-3 py-2 rounded-md text-base font-medium hover:text-cyber-neon">Services</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium hover:text-cyber-neon">About</a>
+                <a href="#contact" class="block px-3 py-2 text-cyber-neon font-bold">Contact Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="relative min-h-screen flex items-center justify-center pt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 text-center md:text-left z-10 reveal">
+                <div class="inline-block px-4 py-1 mb-4 border border-cyan-500/30 rounded-full bg-cyan-500/10 text-cyber-neon text-sm font-cyber tracking-wider">
+                    NEXT GEN IT SOLUTIONS
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                    Empower Your <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Digital Future</span>
+                </h1>
+                <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto md:mx-0">
+                    Comprehensive Hardware & Software integration. We build the infrastructure that powers tomorrow's innovations.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <button class="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/50 transition-all hover:-translate-y-1">
+                        Explore Services
+                    </button>
+                    <button class="px-8 py-4 glass-card rounded-lg font-bold text-white hover:bg-white/10 transition-all">
+                        View Portfolio
+                    </button>
+                </div>
+            </div>
+            <div class="md:w-1/2 mt-12 md:mt-0 relative z-10 reveal delay-200">
+                <div class="relative w-full max-w-md mx-auto">
+                    <div class="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-2xl rotate-6 opacity-30 blur-lg"></div>
+                    <div class="glass-card rounded-2xl p-8 relative border-t border-l border-white/20">
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="h-3 w-3 rounded-full bg-red-500"></div>
+                            <div class="h-3 w-3 rounded-full bg-yellow-500 -ml-4"></div>
+                            <div class="h-3 w-3 rounded-full bg-green-500 -ml-4"></div>
+                            <span class="text-xs text-gray-500 font-mono ml-auto">system_status: online</span>
+                        </div>
+                        <div class="space-y-4 font-mono text-sm text-cyan-300">
+                            <p>> Initializing Hardware Protocols...</p>
+                            <p>> Optimizing Software Architecture...</p>
+                            <div class="w-full bg-gray-700 h-2 rounded-full mt-2 overflow-hidden">
+                                <div class="bg-cyber-neon h-full w-[85%] animate-pulse"></div>
+                            </div>
+                            <p class="text-white">> Ready to deploy.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-cyber font-bold mb-4">Our Expertise</h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/5 transition-all hover:-translate-y-2 cursor-pointer reveal">
+                    <div class="w-14 h-14 bg-blue-900/50 rounded-lg flex items-center justify-center mb-6 text-cyan-400 text-2xl border border-blue-500/30">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Hardware Infrastructure</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        High-performance server setups, networking equipment, and IoT device integration tailored for enterprise scale.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/5 transition-all hover:-translate-y-2 cursor-pointer reveal delay-100">
+                    <div class="w-14 h-14 bg-purple-900/50 rounded-lg flex items-center justify-center mb-6 text-purple-400 text-2xl border border-purple-500/30">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Software Development</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Custom web applications, cloud SaaS solutions, and mobile apps built with cutting-edge technologies.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl hover:bg-white/5 transition-all hover:-translate-y-2 cursor-pointer reveal delay-200">
+                    <div class="w-14 h-14 bg-teal-900/50 rounded-lg flex items-center justify-center mb-6 text-teal-400 text-2xl border border-teal-500/30">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Cyber Security</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        End-to-end security auditing, firewall implementation, and data protection strategies for your assets.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-10 border-y border-white/5 bg-black/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-white/10">
+                <div class="reveal">
+                    <p class="text-4xl font-cyber font-bold text-white">500+</p>
+                    <p class="text-sm text-cyan-400 mt-2">Projects Done</p>
+                </div>
+                <div class="reveal delay-100">
+                    <p class="text-4xl font-cyber font-bold text-white">98%</p>
+                    <p class="text-sm text-cyan-400 mt-2">Client Satisfaction</p>
+                </div>
+                <div class="reveal delay-200">
+                    <p class="text-4xl font-cyber font-bold text-white">24/7</p>
+                    <p class="text-sm text-cyan-400 mt-2">Support Active</p>
+                </div>
+                <div class="reveal delay-300">
+                    <p class="text-4xl font-cyber font-bold text-white">10+</p>
+                    <p class="text-sm text-cyan-400 mt-2">Years Exp.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-20">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-card rounded-2xl p-8 md:p-12 reveal">
+                <h2 class="text-3xl font-cyber font-bold text-center mb-8">Let's Build The Future</h2>
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                            <input type="text" class="w-full bg-slate-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                            <input type="email" class="w-full bg-slate-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors" placeholder="john@company.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Interest</label>
+                        <select class="w-full bg-slate-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                            <option>Hardware Solutions</option>
+                            <option>Software Development</option>
+                            <option>Cloud Services</option>
+                            <option>Consultation</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Message</label>
+                        <textarea rows="4" class="w-full bg-slate-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors" placeholder="Tell us about your project..."></textarea>
+                    </div>
+                    <button type="button" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-lg shadow-lg shadow-cyan-500/20 transition-all transform hover:scale-[1.02]">
+                        Send Message <i class="fa-solid fa-paper-plane ml-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-white/10 bg-slate-900 pt-10 pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <span class="text-2xl font-cyber font-bold text-white">CYBER<span class="text-cyan-400">TECH</span></span>
+                <p class="text-gray-500 text-sm mt-2">Innovating Hardware & Software Solutions.</p>
+            </div>
+            <div class="flex space-x-6 mb-4 md:mb-0">
+                <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors"><i class="fa-brands fa-facebook text-xl"></i></a>
+                <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors"><i class="fa-brands fa-twitter text-xl"></i></a>
+                <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors"><i class="fa-brands fa-linkedin text-xl"></i></a>
+            </div>
+        </div>
+        <div class="text-center mt-8 text-gray-600 text-xs">
+            &copy; 2024 CyberTech Solutions. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // 1. Mobile Menu Toggle
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // 2. Scroll Animation (Fade In Up)
+        // Uses IntersectionObserver efficiently
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    // Optional: Stop observing once revealed
+                    // observer.unobserve(entry.target); 
+                }
+            });
+        }, observerOptions);
+
+        const revealElements = document.querySelectorAll('.reveal');
+        revealElements.forEach(el => observer.observe(el));
+
+        // 3. Navbar Glass Effect enhancement on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-lg');
+            } else {
+                nav.classList.remove('shadow-lg');
+            }
+        });
+    </script>
+</body>
+</html>
