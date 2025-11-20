@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenStay - จองที่พักธรรมชาติครบวงจร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 
+                            500: '#22c55e', 600: '#16a34a', 700: '#15803d', 
+                            800: '#166534', 900: '#14532d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Smooth Transitions */
+        .view-section { transition: opacity 0.4s ease-in-out; }
+        .hidden-section { display: none; opacity: 0; }
+        .fade-in { animation: fadeIn 0.5s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Checkbox */
+        .custom-checkbox:checked + div { background-color: #f0fdf4; border-color: #16a34a; color: #166534; }
+        .custom-checkbox:checked + div .check-circle { background-color: #16a34a; border-color: #16a34a; }
+        .custom-checkbox:checked + div .check-circle::after { content: '✓'; color: white; font-size: 12px; display: block; text-align: center; }
+        
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-white text-gray-700 font-sans antialiased">
+
+    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur shadow-sm border-b border-brand-100 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div onclick="goHome()" class="cursor-pointer flex items-center gap-2 group">
+                <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition">🌿</div>
+                <div>
+                    <h1 class="text-xl font-bold text-brand-800 tracking-tight leading-none">GreenStay</h1>
+                    <span class="text-[10px] text-brand-500 font-medium tracking-wider uppercase">Eco Hotel & Resort</span>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-8 font-medium text-gray-600">
+                <a href="#home" onclick="goHome()" class="hover:text-brand-600 transition">หน้าแรก</a>
+                <a href="#rooms" onclick="goHome()" class="hover:text-brand-600 transition">ห้องพัก</a>
+                <a href="#about" onclick="goHome()" class="hover:text-brand-600 transition">เกี่ยวกับเรา</a>
+                <a href="#contact" onclick="goHome()" class="hover:text-brand-600 transition">ติดต่อ</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="admin.html" class="hidden lg:block text-xs font-bold text-brand-600 px-3 py-1 hover:bg-brand-50 rounded-full border border-transparent hover:border-brand-200 transition">Admin</a>
+                <button onclick="document.getElementById('rooms').scrollIntoView({behavior: 'smooth'})" class="bg-brand-600 text-white px-6 py-2.5 rounded-full font-bold shadow-lg hover:bg-brand-800 transition transform hover:-translate-y-0.5">
+                    จองห้องพัก
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="view-home" class="view-section pt-20">
+        <header id="home" class="relative px-4 py-6">
+            <div class="max-w-7xl mx-auto bg-brand-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative min-h-[550px] flex items-center group">
+                <img src="https://images.unsplash.com/photo-1571896349842-6e5478f4d058?auto=format&fit=crop&w=1800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-overlay group-hover:scale-105 transition duration-1000">
+                <div class="relative z-10 p-8 md:p-20 text-white max-w-3xl fade-in">
+                    <div class="flex items-center gap-2 text-brand-200 font-bold mb-4 tracking-wider uppercase text-sm"><span class="w-8 h-0.5 bg-brand-400"></span> Welcome to Nature</div>
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight drop-shadow-lg">พักผ่อนให้<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-white">หายเหนื่อย</span><br>ในอ้อมกอดขุนเขา</h1>
+                    <button onclick="document.getElementById('rooms').scrollIntoView({behavior: 'smooth'})" class="bg-brand-500 text-white px-8 py-4 rounded-full font-bold hover:bg-brand-600 transition shadow-lg text-lg">ค้นหาห้องว่าง</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="search-section" class="max-w-5xl mx-auto px-4 relative z-20 -mt-16 mb-20">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 flex flex-col md:flex-row gap-6 items-end">
+                <div class="w-full"><label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">เช็คอิน</label><input type="date" id="searchCheckIn" class="w-full bg-gray-50 border-0 rounded-xl p-4 text-gray-800 font-bold focus:ring-2 focus:ring-brand-500 cursor-pointer outline-none"></div>
+                <div class="w-full"><label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">เช็คเอาท์</label><input type="date" id="searchCheckOut" class="w-full bg-gray-50 border-0 rounded-xl p-4 text-gray-800 font-bold focus:ring-2 focus:ring-brand-500 cursor-pointer outline-none"></div>
+                <button onclick="filterRooms()" class="w-full md:w-auto bg-brand-800 text-white px-10 py-4 rounded-xl font-bold hover:bg-brand-900 transition shadow-lg flex items-center justify-center gap-2 whitespace-nowrap">ค้นหา</button>
+            </div>
+        </div>
+
+        <section id="rooms" class="max-w-7xl mx-auto px-4 py-16">
+            <div class="text-center mb-16"><h2 class="text-4xl font-bold text-gray-800 mt-2">ห้องพักแนะนำ</h2><div class="w-20 h-1 bg-brand-500 mx-auto mt-4 rounded-full"></div></div>
+            <div id="room-grid" class="grid md:grid-cols-3 gap-10"></div>
+        </section>
+
+        <section id="about" class="bg-brand-50 py-24 relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 text-center"><h2 class="text-4xl font-bold text-gray-800 mb-6">ธรรมชาติบำบัดที่ดีที่สุด</h2><p class="text-gray-600 max-w-2xl mx-auto">GreenStay รีสอร์ทที่เป็นมิตรต่อสิ่งแวดล้อม ใช้วัสดุธรรมชาติ พลังงานสะอาด และสนับสนุนชุมชน</p></div></section>
+        <section id="contact" class="bg-gray-900 text-white py-20"><div class="max-w-7xl mx-auto px-4 text-center"><h2 class="text-3xl font-bold mb-6 text-brand-500">ติดต่อเรา</h2><p>053-123-456 | reservation@greenstay.com</p></div></section>
+    </div>
+
+    <div id="view-checkout" class="view-section hidden-section pt-28 pb-20 max-w-6xl mx-auto px-4">
+        <button onclick="goHome()" class="mb-6 text-gray-500 hover:text-brand-600 flex items-center gap-2 font-medium transition">← กลับไปหน้าหลัก</button>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="md:col-span-2 space-y-6 fade-in">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                    <h3 class="text-xl font-bold mb-6 text-brand-800 flex items-center gap-2">📅 วันเข้าพัก (ปรับเปลี่ยนได้)</h3>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div><label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">เช็คอิน</label><input type="date" id="checkoutCheckIn" onchange="updateCheckoutDates()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-bold text-gray-700 focus:ring-2 focus:ring-brand-500 cursor-pointer"></div>
+                        <div><label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">เช็คเอาท์</label><input type="date" id="checkoutCheckOut" onchange="updateCheckoutDates()" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 font-bold text-gray-700 focus:ring-2 focus:ring-brand-500 cursor-pointer"></div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2 text-sm bg-brand-50 text-brand-700 px-4 py-2 rounded-lg inline-flex"><span>🌙 ระยะเวลาเข้าพัก:</span><span id="displayCheckoutNights" class="font-bold text-lg">1</span><span>คืน</span></div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold mb-6 text-brand-800">👤 ข้อมูลผู้จอง</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4"><input type="text" id="guestFirstName" placeholder="ชื่อจริง" class="border p-3 rounded-xl w-full bg-gray-50"><input type="text" id="guestLastName" placeholder="นามสกุล" class="border p-3 rounded-xl w-full bg-gray-50"></div>
+                    <input type="tel" placeholder="เบอร์โทรศัพท์" class="border p-3 rounded-xl w-full bg-gray-50">
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                    <h3 class="text-xl font-bold mb-6 text-brand-800 relative z-10">✨ บริการเสริม</h3>
+                    <div class="space-y-4 relative z-10">
+                        <div class="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50">
+                            <div><div class="font-bold text-gray-700">จำนวนผู้เข้าพัก</div><div class="text-xs text-gray-500">พักมาตรฐาน 2 ท่าน (สูงสุด 5 ท่าน)</div></div>
+                            <div class="flex items-center gap-3 bg-white px-2 py-1 rounded-lg border border-gray-200 shadow-sm"><button onclick="updateGuests(-1)" class="w-8 h-8 rounded hover:bg-gray-100 font-bold">-</button><span id="displayGuestCount" class="w-6 text-center font-bold text-brand-700">2</span><button onclick="updateGuests(1)" class="w-8 h-8 rounded hover:bg-brand-50 font-bold">+</button></div>
+                        </div>
+                        <label id="lblExtraBed" class="cursor-pointer block group transition-opacity duration-300"><input type="checkbox" id="optExtraBed" class="custom-checkbox hidden" onchange="updatePrice()"><div class="border border-gray-200 rounded-xl p-4 flex items-center justify-between transition group-hover:border-brand-300 bg-white"><div class="flex items-center gap-4"><div class="w-6 h-6 rounded-full border-2 border-gray-300 check-circle flex items-center justify-center transition"></div><div><div class="font-bold text-gray-700">เตียงเสริม (Extra Bed)</div><div class="text-xs text-gray-400" id="txtExtraBedDesc">รวมผ้าห่มและหมอนเพิ่ม</div></div></div><div class="text-right"><div class="font-bold text-brand-600" id="txtExtraBedPrice">+฿800</div><div class="text-xs text-gray-400">/ คืน</div></div></div></label>
+                        <label class="cursor-pointer block group"><input type="checkbox" id="optBreakfast" class="custom-checkbox hidden" onchange="updatePrice()"><div class="border border-gray-200 rounded-xl p-4 flex items-center justify-between transition group-hover:border-brand-300 bg-white"><div class="flex items-center gap-4"><div class="w-6 h-6 rounded-full border-2 border-gray-300 check-circle flex items-center justify-center transition"></div><div><div class="font-bold text-gray-700">รับอาหารเช้า (Breakfast)</div><div class="text-xs text-gray-400">บุฟเฟต์นานาชาติและออร์แกนิก</div></div></div><div class="text-right"><div class="font-bold text-brand-600">+฿300</div><div class="text-xs text-gray-400">/ ท่าน / คืน</div></div></div></label>
+                    </div>
+                </div>
+
+                <div id="availabilityError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-sm">⚠️ <strong>ขออภัย!</strong> วันที่ท่านเลือก มีผู้จองห้องพักนี้เต็มแล้ว</div>
+                <button id="btnConfirmBooking" onclick="confirmPayment()" class="w-full bg-brand-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-brand-700 transition transform hover:-translate-y-0.5 text-lg flex justify-center items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"><span>ยืนยันการจองและชำระเงิน</span></button>
+            </div>
+
+            <div class="md:col-span-1">
+                <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 sticky top-28">
+                    <h3 class="font-bold text-lg mb-4 text-gray-800">สรุปรายการจอง</h3>
+                    <div class="mb-4 rounded-xl overflow-hidden relative h-40"><img id="summary-img" class="w-full h-full object-cover"><div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div><div class="absolute bottom-3 left-3 text-white font-bold text-lg shadow-sm" id="summary-room-name">...</div></div>
+                    <div class="mb-6 pb-6 border-b border-dashed border-gray-200 text-sm"><div class="flex justify-between mb-2"><span class="text-gray-500">เช็คอิน</span><span class="font-bold text-gray-700" id="summary-checkin">...</span></div><div class="flex justify-between mb-2"><span class="text-gray-500">เช็คเอาท์</span><span class="font-bold text-gray-700" id="summary-checkout">...</span></div><div class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded mt-1">รวม <span id="summary-nights" class="font-bold">0</span> คืน</div></div>
+                    <div class="space-y-3 text-sm text-gray-600 mb-6"><div class="flex justify-between"><span>ค่าห้องพัก</span><span class="font-medium">฿<span id="summ-room-price">0</span></span></div><div class="flex justify-between text-brand-600 hidden" id="row-extra-bed"><span id="summ-extra-bed-label">+ เตียงเสริม</span><span>฿<span id="summ-extra-bed">0</span></span></div><div class="flex justify-between text-brand-600 hidden" id="row-breakfast"><span>+ อาหารเช้า (<span id="summ-bf-guests">0</span> ท่าน)</span><span>฿<span id="summ-breakfast">0</span></span></div></div>
+                    <div class="bg-brand-50 p-5 rounded-xl flex justify-between items-center border border-brand-100"><span class="text-brand-800 font-bold text-sm">ยอดรวมสุทธิ</span><span class="text-3xl font-bold text-brand-600 leading-none">฿<span id="summary-total">0</span></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-success" class="view-section hidden-section pt-32 pb-20 px-4 text-center">
+        <div class="max-w-md mx-auto bg-white p-10 rounded-3xl shadow-2xl border-t-8 border-brand-500 relative">
+            <div class="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-inner">✓</div>
+            <h1 class="text-3xl font-bold mb-2 text-gray-800">จองสำเร็จ!</h1>
+            <p class="text-gray-500 mb-8">Booking ID: <span id="success-ref" class="font-mono font-bold text-brand-700">GS-XXX</span></p>
+            <button onclick="goHome()" class="w-full bg-white text-brand-600 border-2 border-brand-600 py-3 rounded-xl font-bold hover:bg-brand-50 transition">กลับหน้าแรก</button>
+        </div>
+    </div>
+
+    <script>
+        const PRICE_EXTRA_BED = 800;
+        const PRICE_BREAKFAST = 300;
+        let currentBooking = { roomId: null, roomName: '', basePrice: 0, checkIn: '', checkOut: '', nights: 0, guests: 2 };
+
+        function init() {
+            const t = new Date(); const tmr = new Date(t); tmr.setDate(t.getDate() + 1);
+            document.getElementById('searchCheckIn').valueAsDate = t; document.getElementById('searchCheckOut').valueAsDate = tmr;
+            let rooms = JSON.parse(localStorage.getItem('hotelRooms'));
+            if (!rooms || rooms.length === 0) {
+                rooms = [{ id: 1, name: "Deluxe Garden View", price: 2500, image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800" }, { id: 2, name: "Suite with Balcony", price: 4500, image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800" }, { id: 3, name: "Pool Villa Private", price: 7500, image: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800" }];
+                localStorage.setItem('hotelRooms', JSON.stringify(rooms));
+            }
+            renderRooms(rooms);
+        }
+        function renderRooms(rooms) {
+            const grid = document.getElementById('room-grid'); grid.innerHTML = '';
+            rooms.forEach(r => grid.innerHTML += `<div class="bg-white rounded-2xl shadow-md overflow-hidden group border border-gray-100 hover:shadow-xl transition duration-300 flex flex-col"><div class="h-64 overflow-hidden relative"><img src="${r.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 pt-12"><span class="text-white font-bold text-xl drop-shadow-md">฿${r.price.toLocaleString()}</span></div></div><div class="p-6 flex flex-col flex-1"><h3 class="text-xl font-bold text-gray-800 mb-4">${r.name}</h3><div class="mt-auto"><button onclick="startBooking(${r.id})" class="w-full bg-brand-50 text-brand-700 py-3 rounded-xl font-bold hover:bg-brand-600 hover:text-white transition border border-brand-100">เลือกห้องนี้</button></div></div></div>`);
+        }
+        
+        function checkRoomAvailability(roomId, inStr, outStr) {
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings')) || [];
+            const s = new Date(inStr); const e = new Date(outStr);
+            return !bookings.some(b => parseInt(b.roomId) === parseInt(roomId) && b.status !== 'Cancelled' && s < new Date(b.checkOut) && e > new Date(b.checkIn));
+        }
+
+        function startBooking(roomId) {
+            const i = document.getElementById('searchCheckIn').value; const o = document.getElementById('searchCheckOut').value;
+            if(!i || !o){ alert('กรุณาระบุวันที่เข้าพักก่อนครับ'); document.getElementById('search-section').scrollIntoView({behavior:'smooth'}); return; }
+            document.getElementById('checkoutCheckIn').value = i; document.getElementById('checkoutCheckOut').value = o;
+            document.getElementById('checkoutCheckIn').min = new Date().toISOString().split('T')[0]; document.getElementById('checkoutCheckOut').min = i;
+            
+            const r = JSON.parse(localStorage.getItem('hotelRooms')).find(x => x.id === roomId);
+            document.getElementById('optExtraBed').checked = false; document.getElementById('optExtraBed').disabled = false; document.getElementById('optBreakfast').checked = false;
+            currentBooking = { ...currentBooking, roomId: r.id, roomName: r.name, image: r.image, basePrice: r.price, checkIn: i, checkOut: o, guests: 2 };
+            document.getElementById('displayGuestCount').innerText = 2;
+            
+            // Reset UI Text
+            document.getElementById('lblExtraBed').classList.remove('opacity-80', 'bg-gray-50');
+            document.getElementById('txtExtraBedDesc').innerText = "รวมผ้าห่มและหมอนเพิ่ม"; document.getElementById('txtExtraBedDesc').classList.remove('text-orange-500'); document.getElementById('txtExtraBedPrice').innerText = "+฿800";
+
+            document.getElementById('summary-img').src = r.image; document.getElementById('summary-room-name').innerText = r.name;
+            setTimeout(() => updateCheckoutDates(), 100);
+            switchView('view-checkout');
+        }
+
+        function updateCheckoutDates() {
+            const i = document.getElementById('checkoutCheckIn').value; const o = document.getElementById('checkoutCheckOut').value;
+            if(!i || !o) return;
+            const d1 = new Date(i); const d2 = new Date(o);
+            if(d2 <= d1) { alert('วันเช็คเอาท์ต้องหลังจากวันเช็คอิน 1 วัน'); const n = new Date(d1); n.setDate(d1.getDate()+1); document.getElementById('checkoutCheckOut').valueAsDate = n; return updateCheckoutDates(); }
+            
+            currentBooking.checkIn = i; currentBooking.checkOut = o;
+            currentBooking.nights = Math.ceil((d2 - d1) / (86400000));
+            
+            // Check Availability
+            const avail = checkRoomAvailability(currentBooking.roomId, i, o);
+            const btn = document.getElementById('btnConfirmBooking'); const err = document.getElementById('availabilityError');
+            if(!avail){ err.classList.remove('hidden'); btn.disabled = true; btn.classList.add('bg-gray-400'); btn.classList.remove('bg-brand-600'); }
+            else { err.classList.add('hidden'); btn.disabled = false; btn.classList.remove('bg-gray-400'); btn.classList.add('bg-brand-600'); }
+            
+            updatePrice();
+        }
+
+        function updateGuests(c) {
+            let n = currentBooking.guests + c; if(n < 1) n = 1; if(n > 5) n = 5;
+            currentBooking.guests = n; document.getElementById('displayGuestCount').innerText = n;
+            const cb = document.getElementById('optExtraBed'), lbl = document.getElementById('lblExtraBed'), desc = document.getElementById('txtExtraBedDesc'), pr = document.getElementById('txtExtraBedPrice');
+            if(n > 2) {
+                const ex = n - 2; cb.checked = true; cb.disabled = true; lbl.classList.add('opacity-80', 'bg-gray-50');
+                desc.innerText = `บังคับเสริมเตียงสำหรับ ${ex} ท่าน`; desc.classList.add('text-orange-500'); pr.innerText = `+฿${(ex * 800).toLocaleString()}`;
+            } else {
+                cb.disabled = false; lbl.classList.remove('opacity-80', 'bg-gray-50');
+                desc.innerText = 'รวมผ้าห่มและหมอนเพิ่ม'; desc.classList.remove('text-orange-500'); pr.innerText = '+฿800';
+            }
+            updatePrice();
+        }
+
+        function updatePrice() {
+            document.getElementById('summary-checkin').innerText = currentBooking.checkIn; document.getElementById('summary-checkout').innerText = currentBooking.checkOut; document.getElementById('summary-nights').innerText = currentBooking.nights; document.getElementById('displayCheckoutNights').innerText = currentBooking.nights;
+            
+            let exCount = 0;
+            if(currentBooking.guests > 2) exCount = currentBooking.guests - 2;
+            else if(document.getElementById('optExtraBed').checked) exCount = 1;
+
+            const hasBf = document.getElementById('optBreakfast').checked;
+            const roomC = currentBooking.basePrice * currentBooking.nights;
+            const exC = exCount * PRICE_EXTRA_BED * currentBooking.nights;
+            const bfC = hasBf ? (PRICE_BREAKFAST * currentBooking.guests * currentBooking.nights) : 0;
+            
+            document.getElementById('summ-room-price').innerText = roomC.toLocaleString();
+            
+            const rEx = document.getElementById('row-extra-bed');
+            if(exCount > 0) { rEx.classList.remove('hidden'); document.getElementById('summ-extra-bed-label').innerText = `+ เตียงเสริม (x${exCount})`; document.getElementById('summ-extra-bed').innerText = exC.toLocaleString(); } else rEx.classList.add('hidden');
+            
+            const rBf = document.getElementById('row-breakfast');
+            if(hasBf) { rBf.classList.remove('hidden'); document.getElementById('summ-bf-guests').innerText = currentBooking.guests; document.getElementById('summ-breakfast').innerText = bfC.toLocaleString(); } else rBf.classList.add('hidden');
+            
+            const total = roomC + exC + bfC;
+            document.getElementById('summary-total').innerText = total.toLocaleString();
+            currentBooking.totalPrice = total;
+            currentBooking.details = { extraBedCount: exCount, extraBed: exCount > 0, breakfast: hasBf, guests: currentBooking.guests };
+        }
+
+        function confirmPayment() {
+            const f = document.getElementById('guestFirstName').value; const l = document.getElementById('guestLastName').value;
+            if(!f || !l) { alert('กรุณากรอกชื่อผู้จอง'); return; }
+            const b = { id: Date.now(), refCode: 'GS-' + Math.floor(100000 + Math.random() * 900000), ...currentBooking, guestName: f + ' ' + l, status: 'Confirmed', timestamp: new Date().toLocaleString() };
+            const bs = JSON.parse(localStorage.getItem('hotelBookings')) || []; bs.push(b); localStorage.setItem('hotelBookings', JSON.stringify(bs));
+            document.getElementById('success-ref').innerText = b.refCode; switchView('view-success');
+        }
+
+        function switchView(id) { document.querySelectorAll('.view-section').forEach(e => { e.classList.add('hidden-section'); e.classList.remove('fade-in'); }); const t = document.getElementById(id); t.classList.remove('hidden-section'); t.classList.add('fade-in'); window.scrollTo({top: 0, behavior: 'smooth'}); }
+        function goHome() { switchView('view-home'); }
+        function filterRooms() { const g = document.getElementById('room-grid'); g.innerHTML = '<div class="col-span-3 py-12 text-center text-gray-400 animate-pulse">กำลังค้นหาห้องว่าง...</div>'; setTimeout(() => { renderRooms(JSON.parse(localStorage.getItem('hotelRooms'))); document.getElementById('rooms').scrollIntoView({behavior:'smooth'}); }, 600); }
+        init();
+    </script>
+</body>
+</html>

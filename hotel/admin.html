@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Pro - GreenStay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: { 500: "#22c55e", 600: "#16a34a", 800: "#166534" },
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Prompt", sans-serif;
+      }
+      /* Custom Scrollbar */
+      .timeline-container::-webkit-scrollbar {
+        height: 10px;
+      }
+      .timeline-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      .timeline-container::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 5px;
+      }
+      .timeline-container::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8;
+      }
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        .print-only {
+          display: block !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <div class="flex h-screen overflow-hidden">
+      <aside
+        class="w-64 bg-brand-800 text-white flex flex-col no-print shrink-0 z-20 shadow-xl"
+      >
+        <div
+          class="p-6 text-2xl font-bold border-b border-brand-600 flex items-center gap-2"
+        >
+          📅 Manager
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+          <button
+            onclick="switchTab('calendar')"
+            class="w-full text-left py-3 px-4 hover:bg-brand-600 rounded-lg transition flex items-center gap-2 font-medium bg-brand-700/50"
+          >
+            🗓️ ปฏิทินการจอง
+          </button>
+          <button
+            onclick="switchTab('dashboard')"
+            class="w-full text-left py-3 px-4 hover:bg-brand-600 rounded-lg transition flex items-center gap-2 font-medium"
+          >
+            📊 รายการจอง
+          </button>
+          <button
+            onclick="switchTab('rooms')"
+            class="w-full text-left py-3 px-4 hover:bg-brand-600 rounded-lg transition flex items-center gap-2 font-medium"
+          >
+            🛏️ จัดการห้องพัก
+          </button>
+          <a
+            href="index.html"
+            target="_blank"
+            class="block py-3 px-4 bg-brand-900/30 hover:bg-brand-600 rounded-lg text-brand-100 mt-8 text-sm"
+          >
+            ↗️ เปิดหน้าเว็บไซต์
+          </a>
+        </nav>
+      </aside>
+
+      <main class="flex-1 overflow-hidden relative flex flex-col">
+        <div id="tab-calendar" class="tab-content flex-1 flex flex-col h-full">
+          <header
+            class="p-6 bg-white border-b flex justify-between items-center shadow-sm z-10"
+          >
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">
+                ตารางห้องพัก (Timeline)
+              </h1>
+              <p class="text-sm text-gray-500">
+                คลิกที่แถบสีเขียวเพื่อดูรายละเอียด
+              </p>
+            </div>
+            <div class="flex gap-3">
+              <button
+                onclick="loadTimeline()"
+                class="p-2 text-gray-500 hover:text-brand-600"
+                title="Refresh"
+              >
+                🔄
+              </button>
+              <button
+                onclick="openAdminBooking()"
+                class="bg-brand-600 text-white px-6 py-2 rounded-full font-bold shadow hover:bg-brand-800 transition flex items-center gap-2"
+              >
+                + สร้างการจอง
+              </button>
+            </div>
+          </header>
+
+          <div class="flex-1 overflow-hidden flex bg-white relative">
+            <div
+              class="w-56 bg-white border-r shadow-md z-10 flex flex-col shrink-0"
+            >
+              <div
+                class="h-14 bg-gray-100 border-b flex items-center px-4 font-bold text-gray-500 text-xs uppercase tracking-wider"
+              >
+                ห้องพัก
+              </div>
+              <div id="timeline-rooms" class="flex-1 overflow-y-hidden"></div>
+            </div>
+
+            <div
+              class="flex-1 overflow-x-auto timeline-container relative bg-slate-50"
+              id="timeline-scroll-area"
+            >
+              <div id="timeline-grid" class="relative min-w-max">
+                <div
+                  id="timeline-header"
+                  class="h-14 flex border-b bg-gray-50 sticky top-0 z-10"
+                ></div>
+                <div id="timeline-body" class="relative"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="tab-dashboard"
+          class="tab-content hidden p-8 overflow-y-auto h-full"
+        >
+          <h1 class="text-3xl font-bold mb-6">รายการจองทั้งหมด</h1>
+          <div class="grid grid-cols-3 gap-6 mb-8 no-print">
+            <div
+              class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-brand-500"
+            >
+              <p class="text-gray-500">รายได้รวม</p>
+              <h3 class="text-3xl font-bold">
+                ฿<span id="totalRevenue">0</span>
+              </h3>
+            </div>
+            <div
+              class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-400"
+            >
+              <p class="text-gray-500">รอตรวจสอบ</p>
+              <h3 class="text-3xl font-bold" id="pendingCount">0</h3>
+            </div>
+          </div>
+          <div
+            class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200"
+          >
+            <table class="w-full text-left">
+              <thead class="bg-gray-100 text-gray-600">
+                <tr>
+                  <th class="p-4">ลูกค้า</th>
+                  <th class="p-4">ห้องพัก</th>
+                  <th class="p-4">Check In-Out</th>
+                  <th class="p-4">สถานะ</th>
+                  <th class="p-4 text-center no-print">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody
+                id="bookingTableBody"
+                class="divide-y divide-gray-100"
+              ></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div
+          id="tab-rooms"
+          class="tab-content hidden p-8 overflow-y-auto h-full"
+        >
+          <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold">จัดการห้องพัก</h1>
+            <button
+              onclick="toggleAddRoomModal()"
+              class="bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-800"
+            >
+              + เพิ่มห้องพัก
+            </button>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-3 gap-6"
+            id="adminRoomGrid"
+          ></div>
+        </div>
+      </main>
+    </div>
+
+    <div
+      id="detailModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[100] backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-up"
+      >
+        <div
+          class="bg-brand-600 p-6 text-white flex justify-between items-start"
+        >
+          <div>
+            <h3 class="text-xl font-bold flex items-center gap-2">
+              📝 รายละเอียดการจอง
+            </h3>
+            <p class="text-brand-100 text-sm mt-1" id="detRef">-</p>
+          </div>
+          <button
+            onclick="closeDetail()"
+            class="text-white/80 hover:text-white text-2xl"
+          >
+            &times;
+          </button>
+        </div>
+        <div class="p-8 space-y-6">
+          <div class="flex items-center gap-4 pb-6 border-b border-gray-100">
+            <div
+              class="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center text-3xl"
+            >
+              👤
+            </div>
+            <div>
+              <h4 class="text-lg font-bold text-gray-800" id="detGuestName">
+                -
+              </h4>
+              <p class="text-gray-500" id="detRoomName">-</p>
+            </div>
+            <div class="ml-auto text-right">
+              <span class="block text-xs text-gray-400 uppercase font-bold"
+                >สถานะ</span
+              ><span
+                class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700"
+                id="detStatus"
+                >Confirmed</span
+              >
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
+            <div>
+              <span class="text-xs text-gray-400 uppercase font-bold"
+                >เช็คอิน</span
+              >
+              <div class="font-bold text-gray-700" id="detCheckIn">-</div>
+            </div>
+            <div>
+              <span class="text-xs text-gray-400 uppercase font-bold"
+                >เช็คเอาท์</span
+              >
+              <div class="font-bold text-gray-700" id="detCheckOut">-</div>
+            </div>
+          </div>
+          <div>
+            <h5 class="font-bold text-gray-800 mb-3">บริการเสริม (Add-ons)</h5>
+            <ul class="space-y-2 text-sm text-gray-600" id="detAddons"></ul>
+            <div class="mt-4 pt-4 border-t flex justify-between items-end">
+              <span class="font-bold text-gray-500">ราคารวมสุทธิ</span
+              ><span class="text-3xl font-bold text-brand-600"
+                >฿<span id="detTotal">0</span></span
+              >
+            </div>
+          </div>
+        </div>
+        <div
+          class="bg-gray-50 p-4 flex gap-3 justify-end border-t border-gray-100"
+        >
+          <button
+            onclick="printInvoiceFromDetail()"
+            class="text-brand-600 hover:bg-brand-50 px-4 py-2 rounded-lg font-bold transition"
+          >
+            🖨️ ใบเสร็จ
+          </button>
+          <button
+            onclick="cancelBookingFromDetail()"
+            class="text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg font-bold transition"
+          >
+            ยกเลิก
+          </button>
+          <button
+            onclick="closeDetail()"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-bold transition"
+          >
+            ปิด
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="adminBookingModal"
+      class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[60] backdrop-blur-sm"
+    >
+      <div class="bg-white p-8 rounded-xl w-full max-w-md shadow-2xl">
+        <h3 class="text-xl font-bold mb-4 text-brand-800">
+          🏨 Admin สร้างการจอง
+        </h3>
+        <form id="adminBookingForm" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1"
+              >ชื่อลูกค้า</label
+            >
+            <input
+              type="text"
+              id="admGuestName"
+              placeholder="ชื่อ-นามสกุล"
+              required
+              class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none"
+            />
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2">
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                >ห้องพัก</label
+              >
+              <select
+                id="admRoomSelect"
+                class="w-full border border-gray-300 p-2 rounded-lg outline-none bg-white"
+                onchange="calcAdminPrice()"
+              ></select>
+            </div>
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                >ผู้เข้าพัก</label
+              >
+              <input
+                type="number"
+                id="admGuestCount"
+                min="1"
+                max="5"
+                value="2"
+                class="w-full border border-gray-300 p-2 rounded-lg text-center outline-none"
+                onchange="calcAdminPrice()"
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                >Check In</label
+              ><input
+                type="date"
+                id="admCheckIn"
+                required
+                class="w-full border border-gray-300 p-2 rounded-lg outline-none text-sm"
+                onchange="calcAdminPrice()"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                >Check Out</label
+              ><input
+                type="date"
+                id="admCheckOut"
+                required
+                class="w-full border border-gray-300 p-2 rounded-lg outline-none text-sm"
+                onchange="calcAdminPrice()"
+              />
+            </div>
+          </div>
+          <div
+            class="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-2"
+          >
+            <p class="text-xs font-bold text-gray-400 uppercase">
+              บริการเสริม (Add-ons)
+            </p>
+            <label class="flex items-center justify-between cursor-pointer">
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="admOptExtraBed"
+                  class="rounded text-brand-600 focus:ring-brand-500"
+                  onchange="calcAdminPrice()"
+                /><span class="text-sm text-gray-700">เตียงเสริม (+800)</span>
+              </div>
+              <span id="admExtraBedHint" class="text-xs text-orange-500 hidden"
+                >บังคับ</span
+              >
+            </label>
+            <label class="flex items-center justify-between cursor-pointer">
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="admOptBreakfast"
+                  class="rounded text-brand-600 focus:ring-brand-500"
+                  onchange="calcAdminPrice()"
+                /><span class="text-sm text-gray-700"
+                  >อาหารเช้า (+300/ท่าน)</span
+                >
+              </div>
+            </label>
+          </div>
+          <div class="flex justify-between items-center pt-2 border-t">
+            <span class="text-gray-500 font-bold">ยอดรวมสุทธิ</span
+            ><span class="text-2xl font-bold text-brand-600"
+              >฿<span id="admTotalPrice">0</span></span
+            >
+          </div>
+          <div class="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              onclick="closeAdminBooking()"
+              class="text-gray-500 px-4 py-2 hover:bg-gray-100 rounded-lg transition"
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="submit"
+              class="bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-800 shadow-lg transition"
+            >
+              ยืนยัน
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="addRoomModal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 no-print"
+    >
+      <div class="bg-white p-8 rounded-xl w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">เพิ่มห้องพักใหม่</h3>
+        <form id="addRoomForm" class="space-y-3">
+          <input
+            type="text"
+            id="newRoomName"
+            placeholder="ชื่อห้องพัก"
+            required
+            class="w-full border p-2 rounded"
+          />
+          <input
+            type="number"
+            id="newRoomPrice"
+            placeholder="ราคาต่อคืน"
+            required
+            class="w-full border p-2 rounded"
+          />
+          <input
+            type="url"
+            id="newRoomImage"
+            placeholder="URL รูปภาพ"
+            required
+            class="w-full border p-2 rounded"
+          />
+          <div class="flex justify-end gap-2 mt-4">
+            <button
+              type="button"
+              onclick="toggleAddRoomModal()"
+              class="text-gray-500 px-4"
+            >
+              ยกเลิก</button
+            ><button
+              type="submit"
+              class="bg-brand-600 text-white px-6 py-2 rounded"
+            >
+              บันทึก
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="invoiceTemplate"
+      class="hidden fixed inset-0 bg-white z-[200] p-10 overflow-auto"
+    >
+      <div class="max-w-2xl mx-auto border p-10 mt-10 shadow-none">
+        <div class="text-center mb-10">
+          <h1 class="text-4xl font-bold text-brand-800 mb-2">
+            🌿 GreenStay Hotel
+          </h1>
+          <p class="text-gray-500 tracking-widest uppercase text-sm">
+            ใบเสร็จรับเงิน / Receipt
+          </p>
+        </div>
+        <div class="flex justify-between border-b pb-6 mb-6">
+          <div>
+            <p class="text-gray-500 text-sm">Bill To:</p>
+            <p class="font-bold text-xl" id="invName">-</p>
+            <p class="text-sm text-gray-500" id="invRef">-</p>
+          </div>
+          <div class="text-right">
+            <p class="text-gray-500 text-sm">Date:</p>
+            <p class="font-bold" id="invDate">-</p>
+          </div>
+        </div>
+        <table class="w-full mb-8">
+          <thead>
+            <tr class="border-b-2 border-gray-100 text-gray-500 text-sm">
+              <th class="text-left py-3">รายการ</th>
+              <th class="text-right py-3">จำนวนเงิน</th>
+            </tr>
+          </thead>
+          <tbody id="invItems" class="divide-y divide-gray-50"></tbody>
+          <tfoot>
+            <tr class="border-t-2 border-gray-800 font-bold text-2xl">
+              <td class="py-6">ยอดรวมทั้งสิ้น</td>
+              <td class="text-right py-6" id="invTotal">0</td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="text-center mt-12 no-print">
+          <button
+            onclick="window.print()"
+            class="bg-blue-600 text-white px-6 py-2 rounded font-bold"
+          >
+            🖨️ พิมพ์</button
+          ><button
+            onclick="document.getElementById('invoiceTemplate').classList.add('hidden')"
+            class="ml-2 px-6 py-2 rounded bg-gray-200 font-bold text-gray-700"
+          >
+            ปิด
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const DAY_WIDTH = 60,
+        ROW_HEIGHT = 70;
+      let currentDetailId = null;
+      function initData() {
+        if (!localStorage.getItem("hotelRooms"))
+          localStorage.setItem(
+            "hotelRooms",
+            JSON.stringify([
+              {
+                id: 1,
+                name: "Deluxe Garden",
+                price: 2500,
+                image:
+                  "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800",
+              },
+              {
+                id: 2,
+                name: "Suite Balcony",
+                price: 4500,
+                image:
+                  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800",
+              },
+            ])
+          );
+      }
+      initData();
+
+      function switchTab(t) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((e) => e.classList.add("hidden"));
+        document.getElementById("tab-" + t).classList.remove("hidden");
+        if (t === "rooms") loadRoomsAdmin();
+        if (t === "dashboard") loadBookings();
+        if (t === "calendar") loadTimeline();
+      }
+
+      // --- TIMELINE ---
+      function loadTimeline() {
+        const rooms = JSON.parse(localStorage.getItem("hotelRooms")) || [],
+          bookings = JSON.parse(localStorage.getItem("hotelBookings")) || [];
+        const h = document.getElementById("timeline-header"),
+          b = document.getElementById("timeline-body"),
+          c = document.getElementById("timeline-rooms");
+        h.innerHTML = "";
+        b.innerHTML = "";
+        c.innerHTML = "";
+        const t = new Date();
+        t.setHours(0, 0, 0, 0);
+        const ds = [];
+        for (let i = 0; i < 30; i++) {
+          const d = new Date(t);
+          d.setDate(t.getDate() + i);
+          ds.push(d);
+          h.innerHTML += `<div class="flex-shrink-0 border-r flex flex-col items-center justify-center text-xs ${
+            d.getDay() === 0 || d.getDay() === 6
+              ? "bg-orange-50 text-orange-800"
+              : "text-gray-600"
+          }" style="width:${DAY_WIDTH}px"><span class="font-bold text-sm">${d.getDate()}</span><span class="text-[10px]">${d.toLocaleDateString(
+            "th-TH",
+            { weekday: "short" }
+          )}</span></div>`;
+        }
+        rooms.forEach((r) => {
+          c.innerHTML += `<div class="border-b flex items-center px-4 text-sm font-bold text-gray-700 truncate hover:bg-gray-50 transition" style="height:${ROW_HEIGHT}px">${r.name}</div>`;
+          let row = `<div class="relative border-b flex hover:bg-gray-50 transition" style="height:${ROW_HEIGHT}px;width:${
+            ds.length * DAY_WIDTH
+          }px">`;
+          for (let i = 0; i < 30; i++)
+            row += `<div class="border-r h-full ${
+              ds[i].getDay() === 0 || ds[i].getDay() === 6
+                ? "bg-orange-50/30"
+                : ""
+            }" style="width:${DAY_WIDTH}px"></div>`;
+          bookings
+            .filter(
+              (b) => parseInt(b.roomId) === r.id && b.status !== "Cancelled"
+            )
+            .forEach((b) => {
+              const inD = new Date(b.checkIn);
+              inD.setHours(0, 0, 0, 0);
+              const outD = new Date(b.checkOut);
+              outD.setHours(0, 0, 0, 0);
+              const dif = (inD - t) / 86400000,
+                dur = (outD - inD) / 86400000;
+              if (dif < 30 && dif + dur > 0) {
+                const l = Math.max(0, dif) * DAY_WIDTH,
+                  w = (dif < 0 ? dur + dif : dur) * DAY_WIDTH,
+                  bg =
+                    b.status === "Confirmed"
+                      ? "bg-brand-500 hover:bg-brand-600"
+                      : "bg-yellow-400 hover:bg-yellow-500";
+                row += `<div onclick="openDetail(${
+                  b.id
+                })" class="absolute top-3 h-10 rounded shadow-md ${bg} text-white text-xs flex items-center px-3 overflow-hidden whitespace-nowrap z-10 cursor-pointer hover:scale-[1.02] border border-white/20" style="left:${l}px;width:${Math.max(
+                  w,
+                  10
+                )}px" title="${b.guestName}">👤 ${b.guestName}</div>`;
+              }
+            });
+          row += "</div>";
+          b.innerHTML += row;
+        });
+      }
+
+      // --- ADMIN BOOKING & LOGIC ---
+      function openAdminBooking() {
+        const m = document.getElementById("adminBookingModal"),
+          s = document.getElementById("admRoomSelect");
+        s.innerHTML = "";
+        JSON.parse(localStorage.getItem("hotelRooms")).forEach(
+          (r) =>
+            (s.innerHTML += `<option value="${r.id}" data-price="${r.price}">${r.name}</option>`)
+        );
+        document.getElementById("admGuestName").value = "";
+        document.getElementById("admGuestCount").value = 2;
+        document.getElementById("admOptExtraBed").checked = false;
+        document.getElementById("admOptExtraBed").disabled = false;
+        document.getElementById("admExtraBedHint").classList.add("hidden");
+        document.getElementById("admOptBreakfast").checked = false;
+        document.getElementById("admCheckIn").valueAsDate = new Date();
+        const t = new Date();
+        t.setDate(t.getDate() + 1);
+        document.getElementById("admCheckOut").valueAsDate = t;
+        calcAdminPrice();
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+      function closeAdminBooking() {
+        document.getElementById("adminBookingModal").classList.add("hidden");
+        document.getElementById("adminBookingModal").classList.remove("flex");
+      }
+
+      function calcAdminPrice() {
+        const s = document.getElementById("admRoomSelect"),
+          base = parseInt(s.options[s.selectedIndex].dataset.price);
+        const d1 = new Date(document.getElementById("admCheckIn").value),
+          d2 = new Date(document.getElementById("admCheckOut").value);
+        if (d2 <= d1) {
+          document.getElementById("admTotalPrice").innerText = "0";
+          return;
+        }
+
+        const nights = Math.ceil((d2 - d1) / 86400000),
+          guests = parseInt(document.getElementById("admGuestCount").value);
+        const cbEx = document.getElementById("admOptExtraBed"),
+          hint = document.getElementById("admExtraBedHint");
+        let exCount = 0;
+        if (guests > 2) {
+          exCount = guests - 2;
+          cbEx.checked = true;
+          cbEx.disabled = true;
+          hint.innerText = `บังคับ (${exCount})`;
+          hint.classList.remove("hidden");
+        } else {
+          cbEx.disabled = false;
+          hint.classList.add("hidden");
+          if (cbEx.checked) exCount = 1;
+        }
+
+        const hasBf = document.getElementById("admOptBreakfast").checked;
+        const total =
+          base * nights +
+          exCount * 800 * nights +
+          (hasBf ? 300 * guests * nights : 0);
+        document.getElementById("admTotalPrice").innerText =
+          total.toLocaleString();
+      }
+
+      function isRoomAvailable(rid, i, o) {
+        const bs = JSON.parse(localStorage.getItem("hotelBookings")) || [];
+        const s = new Date(i),
+          e = new Date(o);
+        return !bs.some(
+          (b) =>
+            parseInt(b.roomId) === parseInt(rid) &&
+            b.status !== "Cancelled" &&
+            s < new Date(b.checkOut) &&
+            e > new Date(b.checkIn)
+        );
+      }
+
+      document
+        .getElementById("adminBookingForm")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const rid = document.getElementById("admRoomSelect").value,
+            i = document.getElementById("admCheckIn").value,
+            o = document.getElementById("admCheckOut").value;
+          if (!isRoomAvailable(rid, i, o)) {
+            alert("❌ ห้องไม่ว่าง!");
+            return;
+          }
+          const s = document.getElementById("admRoomSelect"),
+            guests = parseInt(document.getElementById("admGuestCount").value);
+          const hasEx = document.getElementById("admOptExtraBed").checked,
+            hasBf = document.getElementById("admOptBreakfast").checked;
+          let exCount = guests > 2 ? guests - 2 : hasEx ? 1 : 0;
+
+          const b = {
+            id: Date.now(),
+            refCode: "ADM-" + Math.floor(Math.random() * 9000),
+            roomId: rid,
+            roomName: s.options[s.selectedIndex].text,
+            guestName:
+              document.getElementById("admGuestName").value + " (Admin)",
+            checkIn: i,
+            checkOut: o,
+            totalPrice: document
+              .getElementById("admTotalPrice")
+              .innerText.replace(/,/g, ""),
+            status: "Confirmed",
+            timestamp: new Date().toLocaleString(),
+            nights: Math.ceil((new Date(o) - new Date(i)) / 86400000),
+            details: {
+              guests,
+              extraBed: exCount > 0,
+              extraBedCount: exCount,
+              breakfast: hasBf,
+            },
+          };
+          const bs = JSON.parse(localStorage.getItem("hotelBookings")) || [];
+          bs.push(b);
+          localStorage.setItem("hotelBookings", JSON.stringify(bs));
+          closeAdminBooking();
+          loadTimeline();
+          alert("✅ บันทึกเรียบร้อย");
+        });
+
+      // --- DETAIL & OTHERS ---
+      function openDetail(id) {
+        const b = JSON.parse(localStorage.getItem("hotelBookings")).find(
+          (x) => x.id === id
+        );
+        if (!b) return;
+        currentDetailId = id;
+        document.getElementById("detRef").innerText =
+          "Ref: " + (b.refCode || "N/A");
+        document.getElementById("detGuestName").innerText = b.guestName;
+        document.getElementById("detRoomName").innerText = b.roomName;
+        document.getElementById("detStatus").innerText = b.status;
+        document.getElementById("detCheckIn").innerText = new Date(
+          b.checkIn
+        ).toLocaleDateString("th-TH");
+        document.getElementById("detCheckOut").innerText = new Date(
+          b.checkOut
+        ).toLocaleDateString("th-TH");
+        document.getElementById("detTotal").innerText = parseInt(
+          b.totalPrice
+        ).toLocaleString();
+        const ul = document.getElementById("detAddons");
+        ul.innerHTML = `<li class="flex justify-between"><span>จำนวนคืน</span><span>${
+          b.nights || 1
+        } คืน</span></li>`;
+        if (b.details) {
+          ul.innerHTML += `<li class="flex justify-between"><span>ผู้เข้าพัก</span><span>${
+            b.details.guests || 2
+          } ท่าน</span></li>`;
+          if (b.details.extraBed)
+            ul.innerHTML += `<li class="flex justify-between text-brand-600 font-medium"><span>+ เตียงเสริม (${
+              b.details.extraBedCount || 1
+            })</span><span>✔</span></li>`;
+          if (b.details.breakfast)
+            ul.innerHTML += `<li class="flex justify-between text-brand-600 font-medium"><span>+ อาหารเช้า</span><span>✔</span></li>`;
+        }
+        document.getElementById("detailModal").classList.remove("hidden");
+        document.getElementById("detailModal").classList.add("flex");
+      }
+      function closeDetail() {
+        document.getElementById("detailModal").classList.add("hidden");
+        document.getElementById("detailModal").classList.remove("flex");
+      }
+      function cancelBookingFromDetail() {
+        if (confirm("Confirm Cancel?")) {
+          const bs = JSON.parse(localStorage.getItem("hotelBookings"));
+          bs.find((x) => x.id === currentDetailId).status = "Cancelled";
+          localStorage.setItem("hotelBookings", JSON.stringify(bs));
+          closeDetail();
+          loadTimeline();
+          loadBookings();
+        }
+      }
+      function printInvoiceFromDetail() {
+        const b = JSON.parse(localStorage.getItem("hotelBookings")).find(
+          (x) => x.id === currentDetailId
+        );
+        document.getElementById("invName").innerText = b.guestName;
+        document.getElementById("invRef").innerText =
+          "Ref: " + (b.refCode || b.id);
+        document.getElementById("invDate").innerText =
+          new Date().toLocaleDateString("th-TH");
+        let h = `<tr><td class="py-2">${
+          b.roomName
+        }</td><td class="text-right py-2">${parseInt(
+          b.totalPrice
+        ).toLocaleString()}</td></tr>`;
+        if (b.details && (b.details.extraBed || b.details.breakfast))
+          h += `<tr><td class="py-1 text-xs text-gray-500 italic">Includes: ${
+            b.details.extraBed
+              ? `Extra Bed (x${b.details.extraBedCount || 1}), `
+              : ""
+          }${b.details.breakfast ? "Breakfast" : ""}</td><td></td></tr>`;
+        document.getElementById("invItems").innerHTML = h;
+        document.getElementById("invTotal").innerText =
+          "฿" + parseInt(b.totalPrice).toLocaleString();
+        document.getElementById("invoiceTemplate").classList.remove("hidden");
+      }
+      function loadBookings() {
+        const bs = JSON.parse(localStorage.getItem("hotelBookings")) || [],
+          tb = document.getElementById("bookingTableBody");
+        tb.innerHTML = "";
+        let rev = 0,
+          pen = 0;
+        bs.forEach((b, i) => {
+          if (b.status === "Confirmed") rev += parseInt(b.totalPrice);
+          if (b.status === "Pending") pen++;
+          const c =
+            b.status === "Confirmed"
+              ? "bg-green-100 text-green-700"
+              : b.status === "Cancelled"
+              ? "bg-red-100 text-red-700"
+              : "bg-yellow-100 text-yellow-700";
+          tb.innerHTML += `<tr><td class="p-4">${
+            b.guestName
+          }</td><td class="p-4">${b.roomName}</td><td class="p-4">${new Date(
+            b.checkIn
+          ).toLocaleDateString("th-TH")}-${new Date(
+            b.checkOut
+          ).toLocaleDateString(
+            "th-TH"
+          )}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${c}">${
+            b.status
+          }</span></td><td class="p-4"><button onclick="deleteBooking(${i})" class="text-red-500 text-sm">ลบ</button></td></tr>`;
+        });
+        document.getElementById("totalRevenue").innerText =
+          rev.toLocaleString();
+        document.getElementById("pendingCount").innerText = pen;
+      }
+      function loadRoomsAdmin() {
+        const rs = JSON.parse(localStorage.getItem("hotelRooms")) || [],
+          g = document.getElementById("adminRoomGrid");
+        g.innerHTML = "";
+        rs.forEach(
+          (r, i) =>
+            (g.innerHTML += `<div class="bg-white p-4 shadow border rounded flex gap-4"><img src="${r.image}" class="w-20 h-20 object-cover rounded"><div><h3 class="font-bold">${r.name}</h3><p>฿${r.price}</p><button onclick="deleteRoom(${i})" class="text-red-500 text-sm mt-2">ลบ</button></div></div>`)
+        );
+      }
+      function toggleAddRoomModal() {
+        const m = document.getElementById("addRoomModal");
+        m.classList.toggle("hidden");
+        m.classList.toggle("flex");
+      }
+      document.getElementById("addRoomForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const rs = JSON.parse(localStorage.getItem("hotelRooms")) || [];
+        rs.push({
+          id: Date.now(),
+          name: document.getElementById("newRoomName").value,
+          price: document.getElementById("newRoomPrice").value,
+          image: document.getElementById("newRoomImage").value,
+        });
+        localStorage.setItem("hotelRooms", JSON.stringify(rs));
+        toggleAddRoomModal();
+        loadRoomsAdmin();
+      });
+      function deleteRoom(i) {
+        const rs = JSON.parse(localStorage.getItem("hotelRooms"));
+        rs.splice(i, 1);
+        localStorage.setItem("hotelRooms", JSON.stringify(rs));
+        loadRoomsAdmin();
+      }
+      function deleteBooking(i) {
+        const bs = JSON.parse(localStorage.getItem("hotelBookings"));
+        bs.splice(i, 1);
+        localStorage.setItem("hotelBookings", JSON.stringify(bs));
+        loadBookings();
+        loadTimeline();
+      }
+
+      loadTimeline();
+    </script>
+  </body>
+</html>
