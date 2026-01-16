@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM_ROOT // IT_SOLUTIONS</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        mono: ['VT323', 'monospace'], // The heart of the theme
+                    },
+                    colors: {
+                        retro: {
+                            bg: '#000000',
+                            fg: '#ffffff',
+                            dim: '#888888',
+                        }
+                    },
+                    animation: {
+                        'blink': 'blink 1s step-end infinite',
+                        'flicker': 'flicker 0.15s infinite',
+                    },
+                    keyframes: {
+                        blink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' },
+                        },
+                        flicker: {
+                            '0%': { opacity: '0.97' },
+                            '50%': { opacity: '1' },
+                            '100%': { opacity: '0.98' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 1. CRT Monitor Effect (Scanlines) */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* 2. Text Glow (Subtle CRT Bloom) */
+        .crt-text {
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.7);
+        }
+
+        /* 3. Selection Style */
+        ::selection {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        /* 4. Invert Hover Effect */
+        .hover-invert {
+            transition: all 0s; /* Instant change like old computers */
+        }
+        .hover-invert:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 12px; background: #000; border-left: 1px solid #fff; }
+        ::-webkit-scrollbar-thumb { background: #fff; }
+        
+        /* Boot Sequence Screen */
+        #boot-screen {
+            position: fixed;
+            inset: 0;
+            background: black;
+            z-index: 10000;
+            padding: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-mono text-xl leading-relaxed antialiased overflow-x-hidden animate-flicker selection:bg-white selection:text-black">
+
+    <div id="boot-screen">
+        <div id="boot-text" class="text-green-500 text-lg"></div>
+    </div>
+
+   
+
+    <section id="home"
+  class="min-h-screen flex flex-col justify-center items-center pt-20 relative border-b-2 border-white border-dashed overflow-hidden">
+
+  <div class="max-w-7xl mx-auto px-4 w-full text-center">
+    <div class="py-4 mb-6">
+      <p class="text-gray-400 mb-2">/// PROTOCOL: YOUR SYSTEM HAS BEEN COMPROMISED</p>
+      <h1 class="text-6xl md:text-8xl font-bold uppercase mb-4 crt-text">
+        THANK YOU<br>
+        FOR<br>
+        YOUR DATA
+      </h1>
+    </div>
+
+    <p class="text-2xl max-w-2xl mx-auto mb-10 typewriter">
+      <span id="hero-text"></span>
+      <span class="animate-blink inline-block w-3 h-6 bg-white ml-1 align-middle"></span>
+    </p>
+
+  <!-- ✅ marquee ติดขอบล่าง ไม่ดัน layout -->
+  <div class="absolute bottom-0 left-0 w-full bg-white text-black py-3 overflow-hidden border-t-2 border-white">
+    <div class="whitespace-nowrap animate-[marquee_20s_linear_infinite] text-2xl font-bold">
+      *** SYSTEM ALERT: DELETE YOUR DATA*** SERVER STATUS: ONLINE *** LATENCY: 12MS *** NEW HARDWARE AVAILABLE ***
+    </div>
+  </div>
+</section>
+
+    <script>
+  const bootText = document.getElementById('boot-text');
+  const bootScreen = document.getElementById('boot-screen');
+
+  const logs = [
+    "Hacking BIOS...",
+    "Checking Memory: 64MB OK",
+    "Loading Windown 11...",
+    "Mounting /system32/wimdown...",
+    "Starting Network Sharing...",
+    "Loading Folder...",
+    "Authenticating Admin...",
+    "ACCESS Successfully."
+  ];
+
+  // ✅ ปรับความนานตรงนี้
+  const LOG_SPEED = 500;        // 200 -> 500/800/1000
+  const BOOT_END_DELAY = 2000;  // 800 -> 1500/2000/3000
+  const TYPE_SPEED = 150;       // 100 -> 150/200
+
+  let logIndex = 0;
+
+  function runBootSequence() {
+    if (logIndex < logs.length) {
+      const p = document.createElement('div');
+      p.textContent = `> ${logs[logIndex]}`;
+      bootText.appendChild(p);
+      logIndex++;
+      setTimeout(runBootSequence, LOG_SPEED);
+    } else {
+      setTimeout(() => {
+        bootScreen.style.opacity = '0';
+        bootScreen.style.pointerEvents = 'none';
+        typeWriter();
+      }, BOOT_END_DELAY);
+    }
+  }
+
+  const heroText = "# DON'T CLOSE THIS WINDOW. FOR SAFT YOUR COMPUTER!!";
+  const heroElement = document.getElementById('hero-text');
+  let charIndex = 0;
+
+  function typeWriter() {
+    if (charIndex < heroText.length) {
+      heroElement.textContent += heroText.charAt(charIndex);
+      charIndex++;
+      setTimeout(typeWriter, TYPE_SPEED);
+    }
+  }
+
+  window.onload = runBootSequence;
+</script>
+
+</body>
+</html>
